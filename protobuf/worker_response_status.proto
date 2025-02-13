@@ -1,0 +1,18 @@
+package worker_response_status;
+
+option java_multiple_files = true;
+option java_package = "nl.uva.student.ticketing.protobuf";
+option java_outer_classname = "WorkerResponseStatusProtos";
+
+enum WorkerResponseStatus {
+    WORKER_RESPONSE_STATUS_OK = 0;
+    WORKER_RESPONSE_STATUS_ERROR = 1;
+    WORKER_RESPONSE_STATUS_INVALID_REQUEST = 2;
+    WORKER_RESPONSE_STATUS_TIMEOUT = 3;
+}
+
+message BaseResponse {
+    required int32 status = 1;
+    required string message = 2;
+    required WorkerResponseStatus worker_response_status = 3;
+}

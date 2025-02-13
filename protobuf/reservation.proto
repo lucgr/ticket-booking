@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package reservation;
+
+import "worker_response_status.proto";
+
+option java_multiple_files = true;
+option java_package = "nl.uva.student.ticketing.protobuf";
+option java_outer_classname = "ReservationProtos";
+
+service Reservation {
+  rpc ReserveTickets(ReserveTicketsRequest) returns (ReserveTicketsResponse);
+  rpc ReleaseTickets (ReleaseTicketsRequest) returns (ReleaseTicketsResponse);
+  rpc GetTicketsByOrderId(GetTicketsByOrderIdRequest) returns (GetTicketsByOrderIdResponse);
+}
+
+message ReserveTicketsRequest {
+    string order_id = 1;
+    string user_id = 2;
+    string event_id = 3;
+    repeated string ticket_ids = 4;
+}
+
+message ReserveTicketsResponse {
+    worker_response_status.BaseResponse base_response = 1;
+}
+
+message ReleaseTicketsRequest {
+    worker_response_status.BaseResponse base_response = 1;
+    repeated string ticket_ids = 2;
+}
+
+message ReleaseTicketsResponse {
+    worker_response_status.BaseResponse base_response = 1;
+}
+
+message GetTicketsByOrderIdRequest {
+    string order_id = 1;
+}
+
+message GetTicketsByOrderIdResponse {
+    worker_response_status.BaseResponse base_response = 1;
+    repeated Ticket tickets = 2;
+}
+
+message Ticket {
+    string ticket_id = 1;
+    string event_id = 2;
+    TicketAvailability availability = 3;
+    float price = 4;
+}
+
+enum TicketAvailability {
+    TICKET_AVAILABILITY_AVAILABLE = 0;
+    TICKET_AVAILABILITY_RESERVED = 1;
+    TICKET_AVAILABILITY_SOLD = 2;
+}

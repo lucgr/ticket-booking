@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "worker_response_status.proto";
+
+service GenerateTicketService {
+    rpc GenerateTicket(GenerateTicketRequest) returns (GenerateTicketResponse);
+}
+
+message GenerateTicketRequest {
+    string order_id = 1;
+}
+
+message GenerateTicketResponse {
+    BaseResponse base_response = 1;
+    optional string attachment_url = 2;
+}
