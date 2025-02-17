@@ -51,7 +51,9 @@ def lambda_handler(event, context):
     logger.info("Generating ticket PDFs...")
     for event in events:
         tickets = event.get('tickets')
-        c.drawString(50, y, f"Event: {event}")
+        event_id = event.get('event_id')
+        c.setFont("Helvetica-Bold", 13)
+        c.drawString(50, y, f"Event: {event_id}")
         y -= 40
         for ticket in tickets:
             ticket_id = ticket.get('ticket_id')
