@@ -10,6 +10,7 @@ from reportlab.pdfgen import canvas
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
 logger.info("Initializing S3 client...")
 s3 = boto3.client('s3')
 # BUCKET_NAME = os.environ.get('S3_TICKET_BUCKET') # Should resolve to "ticket-pdfs-devops"
