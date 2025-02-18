@@ -51,7 +51,7 @@
                 "orderId": "${workflow.workflowId}",
                 "userId": "${workflow.input.userId}",
                 "eventId": "${workflow.input.eventId}",
-                "tickets": "${seat_reservation.output.tickets}"
+                "tickets": "${seat_reservation.output.response.body.tickets}"
               }
             },
             "type": "EVENT",
@@ -102,13 +102,19 @@
                   "taskReferenceName": "generate_ticket",
                   "inputParameters": {
                     "http_request": {
-                      "uri": "https://api.restful-api.dev/objects",
+                      "uri": "https://wz4spl916g.execute-api.eu-central-1.amazonaws.com/default/generateTicket",
                       "method": "POST",
+                      "headers": {
+                        "x-api-key": "6hGD1z06sC9pM9vNMBFzK3ETQf7Ow1TX74RC7UzR"
+                      },
                       "body": {
-                        "oderId": "${workflow.workflowId}",
-                        "userId": "${workflow.input.userId}",
-                        "eventId": "${workflow.input.eventId}",
-                        "ticketsIds": "${workflow.input.ticketsIds}"
+                        "customer_name": "${workflow.input.userId}",
+                        "events": [
+                          {
+                            "event_id": "${workflow.input.eventId}",
+                            "tickets": "${seat_reservation.output.response.body.tickets}"
+                          }
+                        ]
                       }
                     }
                   },
@@ -166,8 +172,9 @@
             "taskReferenceName": "payment_message",
             "inputParameters": {
               "code": "${payment_receive.output.code}",
+              "url" : "${generate_ticket.output.url}",
               "evaluatorType": "javascript",
-              "expression": "(function () {if($.code === 200) return 'Order Success'; else if($.code === 500) return 'Order Failure'; else return 'Payment Timeout'})()"
+              "expression": "(function () {if($.code === 200) return $.url; else if($.code === 500) return 'Order Failure'; else return 'Payment Timeout'})()"
             },
             "type": "INLINE",
             "decisionCases": {},
