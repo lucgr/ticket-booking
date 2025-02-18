@@ -12,11 +12,11 @@ INPUT_QUEUE_NAME = "payment_queue"
 OUTPUT_QUEUE_NAME = "payment_response_queue"
 
 
-def rabbitmq_connection(retry_delay=5, max_retries=10):
+def rabbitmq_connection(retry_delay=5, maxRetries=10):
     retries = 0
-    while retries < max_retries:
+    while retries < maxRetries:
         try:
-            print(f"Trying to connect to RabbitMQ (attempt {retries + 1})...", flush=True)
+            print(f"Trying to connect to rabbitMQ (attempt {retries + 1})...", flush=True)
             connection = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST))
             channel = connection.channel()
             channel.queue_declare(queue= INPUT_QUEUE_NAME)
@@ -26,17 +26,17 @@ def rabbitmq_connection(retry_delay=5, max_retries=10):
             print(f"Connection failed...", flush=True)
             retries += 1
             time.sleep(retry_delay)
-    raise Exception(f"Could not connect to RabbitMQ after {max_retries} attempts.")
+    raise Exception(f"Could not connect to rabbitMQ attempts")
 
 
 def simulate_payment():
     resultList = ["success", "fail", "delay"]
     result = random.choices(resultList, weights=[0.8, 0.15, 0.05])[0]
     # Uncomment if simulation delay is needed
-    if result == "delayed":
+    if result == "delay":
         # time.sleep(random.randint(3, 6))
         return result, 202
-    elif result == "failure":
+    elif result == "fail":
         return result, 400
     return result, 200
 
@@ -46,47 +46,82 @@ def process_payment_request(ch, method, properties, body):
     message = json.loads(body.decode())
     
     total = 0
-    for ticket in message.get("tickets", []):
+    for ticket in message.get("body", {}).get("tickets", []):
         total += ticket.get('price', 0)
     
-    print(f"Payment request is received from {message['request_id']}, total: {total} euros, please enter payment details..", flush=True)
+    print(f"Payment request is received from {message.get('body', {}).get('orderId', 'Unknown Order')}, total: {total} euros, please enter payment details..", flush=True)
     
     result, status_code = simulate_payment() # Simulation of payment, returns success, fail or timeout.
         
-    print(f"Payment was: {result} for request: {message['request_id']}, Status code: {status_code}", flush=True)
+    print(f"Payment was: {result} for request: {message.get('body', {}).get('orderId', 'Unknown Order')}, Status code: {status_code}", flush=True)
     
     response = {
-        "request_id": message["request_id"],
-        "status": result,
-        "status_code": status_code,
-        "total_amount": total
+        "code": status_code, 
+        "message": "Payment: " + result,
+        "orderId": message.get('body', {}).get('orderId', 'Unknown Order'),
+        "response": {
+            "total": total,
+            "status": result
+        }
     } # Ideally this will be stored in the table
     
-    print(f"Sending response back: {message['request_id']}", flush=True)
+    print(f"Sending response back: {message.get('body', {}).get('orderId', 'Unknown Order')}", flush=True)
+    
     connection, channel = rabbitmq_connection()
     channel.queue_declare(queue=OUTPUT_QUEUE_NAME)
     channel.basic_publish(exchange='', routing_key=OUTPUT_QUEUE_NAME, body=json.dumps(response))
     connection.close()
-    print(f"Send finish: {message['request_id']}", flush=True)
+    
+    print(f"Send finish: {message.get('body', {}).get('orderId', 'Unknown Order')}", flush=True)
 
     ch.basic_ack(delivery_tag=method.delivery_tag)
     
     return response
 
 
-# Used for sending message to the input queue
-def send_payment_request(request_id: str, customer_id: str, tickets: list):
+# Used for sending message to the input queue (debugging purposes)
+def send_payment_request(request_id: str = "2908beb8-1743-4c4e-80d8-4daf8e8a7b4c"):
     connection, channel = rabbitmq_connection()
     
     message = {
-        "request_id": request_id,
-        "customer_id": customer_id,
-        "tickets": tickets
+        "event_produced": "amqp_queue:conductor",
+        "asyncComplete": False,
+        "sink": "amqp_queue:conductor",
+        "workflowType": "TicketBooking",
+        "correlationId": None,
+        "taskToDomain": {},
+        "workflowVersion": 24,
+        "body": {
+            "eventId": "11dfd9b3-a0bf-476d-9438-16c7683e524d",
+            "tickets": [
+            {
+                "ticketId": "1",
+                "eventId": "11dfd9b3-a0bf-476d-9438-16c7683e524d",
+                "availability": "TICKET_AVAILABILITY_RESERVED",
+                "price": 100.15
+            },
+            {
+                "ticketId": "2",
+                "eventId": "11dfd9b3-a0bf-476d-9438-16c7683e524d",
+                "availability": "TICKET_AVAILABILITY_RESERVED",
+                "price": 100.15
+            },
+            {
+                "ticketId": "3",
+                "eventId": "11dfd9b3-a0bf-476d-9438-16c7683e524d",
+                "availability": "TICKET_AVAILABILITY_RESERVED",
+                "price": 100.15
+            }
+            ],
+            "orderId": request_id,
+            "userId": "test"
+        },
+        "workflowInstanceId": "2908beb8-1743-4c4e-80d8-4daf8e8a7b4c"
     }
     
     channel.basic_publish(exchange='', routing_key=INPUT_QUEUE_NAME, body=json.dumps(message))
     connection.close()
-    print(f"Payment request for order {request_id} sent to queue", flush=True)
+    print(f"Payment request for order {message.get('body', {}).get('orderId', 'Unknown Order')} sent to queue", flush=True)
 
 
 def starts_server():
