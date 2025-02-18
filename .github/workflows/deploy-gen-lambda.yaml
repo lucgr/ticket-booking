@@ -33,46 +33,35 @@ jobs:
 
     - name: Update Lambda function code
       run: |
-        aws lambda update-function-code --function-name ${{ vars.LAMBDA_FUNCTION_NAME }} --zip-file fileb://function.zip
+        aws lambda update-function-code --function-name generateTicket --zip-file fileb://function.zip
 
-    - name: Test Lambda function
+    - name: Test curl to Lambda endpoint
       run: |
-        # Save the payload to a file
-        cat <<EOF > payload.json
-        {
-          "customer_name": "Test McTesty",
-          "events": [
-            {
-              "event_id": "EVENT001",
-              "tickets": [
+        http_code=$(curl -s -o response.txt -w "%{http_code}" -X POST "${{ vars.LAMBDA_URL }}" \
+        -H "Content-Type: application/json" \
+        -H "x-api-key: ${{ secrets.API_KEY }}" \
+        -d '{
+              "customer_name": "Testy McTest",
+              "events": [
                 {
-                  "ticket_id": "TICKET001",
-                  "price": 50.0
+                  "event_id": "Hans Dekker on Tour: Confusion Everywhere",
+                  "tickets": [
+                    {"ticketId": "TICKET001", "price": 50.0},
+                    {"ticketId": "TICKET002", "price": 75.0}
+                  ]
                 },
                 {
-                  "ticket_id": "TICKET002",
-                  "price": 75.0
+                  "event_id": "Jeff Besos, the Musical",
+                  "tickets": [
+                    {"ticketId": "TICKET003", "price": 100.0}
+                  ]
                 }
               ]
-            },
-            {
-              "tickets": [
-                {
-                  "ticket_id": "TICKET003",
-                  "price": 100.0
-                }
-              ]
-            }
-          ]
-        }
-        EOF
-
-        # Invoke the Lambda function using its function URL (or using the function name)
-        aws lambda invoke --function-name ${{ vars.LAMBDA_FUNCTION_NAME }} --payload file://payload.json response.json
-
-        status=$(jq -r '.statusCode' response.json)
-        echo "Lambda response statusCode: $status"
-        if [ "$status" != "200" ]; then
-          echo "Error: statusCode is not 200"
+            }')
+        echo "HTTP Status Code: ${http_code}"
+        echo "Response body:" 
+        cat response.txt
+        if [ "${http_code}" -ne 200 ]; then
+          echo "Test failed: Expected status code 200 but got ${http_code}"
           exit 1
         fi
