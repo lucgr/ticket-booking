@@ -1,5 +1,5 @@
 # Use an official Maven image to build the jar file
-FROM maven:3.8.4-openjdk-8 AS build
+FROM maven:3.8.4-openjdk-17 AS build
 
 # Set the working directory in the container
 WORKDIR /app
@@ -12,7 +12,7 @@ COPY src ./src
 RUN mvn clean package
 
 # Use an official OpenJDK runtime as a parent image
-FROM openjdk:8-jdk-alpine
+FROM openjdk:17-jdk-alpine
 
 # Set the working directory in the container
 WORKDIR /app
