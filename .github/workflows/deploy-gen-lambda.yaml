@@ -40,7 +40,7 @@ jobs:
         # Save the payload to a file
         cat <<EOF > payload.json
         {
-          "customer_name": "Alice Johnson",
+          "customer_name": "Test McTesty",
           "events": [
             {
               "event_id": "EVENT001",
