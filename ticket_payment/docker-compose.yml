@@ -1,0 +1,24 @@
+version: "3"
+
+services:
+  rabbitmq:
+    image: "rabbitmq:management"
+    container_name: "rabbitmq"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - mynetwork
+
+  payment-service:
+    build: .
+    depends_on: 
+      - rabbitmq
+    environment:
+        - RABBITMQ_HOST=rabbitmq
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+
