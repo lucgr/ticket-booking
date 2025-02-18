@@ -11,8 +11,7 @@
           "workflowId": "${body.orderId}",
           "taskRefName": "payment_receive",
           "output": {
-            "response": "${body.orderId}",
-            "code" : 200
+            "response": "${body.orderId}"
           }
         },
         "expandInlineJSON": true

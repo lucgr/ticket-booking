@@ -1,9 +1,10 @@
 version: '2.3'
 
 services:
+
   conductor-server:
     environment:
-      - CONFIG_PROP=config-postgres-es7.properties
+      - CONFIG_PROP=config-mysql.properties
     image: r0drigo/conductor-oss:3.21.12
     container_name: conductor_server
     networks:
@@ -11,18 +12,24 @@ services:
     ports:
       - 8080:8080
       - 8127:5000
+    volumes:
+      - ../config:/app/config
     healthcheck:
       test: [ "CMD", "curl","-I" ,"-XGET", "http://localhost:8080/health" ]
       interval: 60s
       timeout: 30s
       retries: 12
     links:
-      - conductor-postgres:postgresdb
       - conductor-elasticsearch:es
+      - conductor-mysql:mysql
+      - conductor-redis:rs
+      - rabbitmq:rabbitmq
     depends_on:
-      conductor-postgres:
-        condition: service_healthy
       conductor-elasticsearch:
+        condition: service_healthy
+      conductor-mysql:
+        condition: service_healthy
+      conductor-redis:
         condition: service_healthy
     logging:
       driver: "json-file"
@@ -30,27 +37,37 @@ services:
         max-size: "1k"
         max-file: "3"
 
-  conductor-postgres:
-    image: postgres
+  conductor-mysql:
+    image: mysql:latest
     environment:
-      - POSTGRES_USER=conductor
-      - POSTGRES_PASSWORD=conductor
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_DATABASE: conductor
+      MYSQL_USER: conductor
+      MYSQL_PASSWORD: conductor
     volumes:
-      - pgdata-conductor:/var/lib/postgresql/data
+      - type: volume
+        source: conductor_mysql
+        target: /var/lib/mysql
     networks:
       - internal
     ports:
-      - 6432:5432
+      - 3306:3306
     healthcheck:
-      test: timeout 5 bash -c 'cat < /dev/null > /dev/tcp/localhost/5432'
+      test: timeout 5 bash -c 'cat < /dev/null > /dev/tcp/localhost/3306'
       interval: 5s
       timeout: 5s
       retries: 12
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "1k"
-        max-file: "3"
+
+  conductor-redis:
+    image: redis:6.2.3-alpine
+    volumes:
+      - ../config/redis.conf:/usr/local/etc/redis/redis.conf
+    networks:
+      - internal
+    ports:
+      - 7379:6379
+    healthcheck:
+      test: [ "CMD", "redis-cli","ping" ]
 
   conductor-elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.11
@@ -75,8 +92,24 @@ services:
         max-size: "1k"
         max-file: "3"
 
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    networks:
+      - internal
+    ports:
+      - "5672:5672"        # RabbitMQ default port
+      - "15672:15672"      # RabbitMQ management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: user      # Default username
+      RABBITMQ_DEFAULT_PASS: password  # Default password
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq  # Persistent data storage
+
 volumes:
-  pgdata-conductor:
+  rabbitmq_data:
+    driver: local
+  conductor_mysql:
     driver: local
   esdata-conductor:
     driver: local
