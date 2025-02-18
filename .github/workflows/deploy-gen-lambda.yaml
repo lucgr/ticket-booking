@@ -33,14 +33,14 @@ jobs:
 
     - name: Update Lambda function code
       run: |
-        aws lambda update-function-code --function-name generateTicket --zip-file fileb://function.zip
+        aws lambda update-function-code --function-name ${{ vars.LAMBDA_FUNCTION_NAME }} --zip-file fileb://function.zip
 
     - name: Test Lambda function
       run: |
         # Save the payload to a file
         cat <<EOF > payload.json
         {
-          "customer_name": "Alice Johnson",
+          "customer_name": "Test McTesty",
           "events": [
             {
               "event_id": "EVENT001",
@@ -68,7 +68,7 @@ jobs:
         EOF
 
         # Invoke the Lambda function using its function URL (or using the function name)
-        aws lambda invoke --function-name ${{ vars.LAMBDA_URL}} --payload file://payload.json response.json
+        aws lambda invoke --function-name ${{ vars.LAMBDA_FUNCTION_NAME }} --payload file://payload.json response.json
 
         status=$(jq -r '.statusCode' response.json)
         echo "Lambda response statusCode: $status"
