@@ -18,15 +18,15 @@ import javax.validation.constraints.*;
  */
 @Validated
 @NotUndefined
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2025-02-17T20:48:49.358959185Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2025-02-18T09:21:40.228845167Z[GMT]")
 
 
 public class BaseResponse   {
-  @JsonProperty("status")
+  @JsonProperty("code")
 
   @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
   @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
-  private String status = null;
+  private Integer code = null;
 
   @JsonProperty("message")
 
@@ -34,34 +34,28 @@ public class BaseResponse   {
   @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
   private String message = null;
 
-  @JsonProperty("code")
 
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
-  private Integer code = null;
+  public BaseResponse code(Integer code) { 
 
-
-  public BaseResponse status(String status) { 
-
-    this.status = status;
+    this.code = code;
     return this;
   }
 
   /**
-   * Status of the response (e.g. OK, ERROR)
-   * @return status
+   * Numeric status code representing the result
+   * @return code
    **/
   
-  @Schema(description = "Status of the response (e.g. OK, ERROR)")
+  @Schema(description = "Numeric status code representing the result")
   
-  public String getStatus() {  
-    return status;
+  public Integer getCode() {  
+    return code;
   }
 
 
 
-  public void setStatus(String status) { 
-    this.status = status;
+  public void setCode(Integer code) { 
+    this.code = code;
   }
 
   public BaseResponse message(String message) { 
@@ -87,29 +81,6 @@ public class BaseResponse   {
     this.message = message;
   }
 
-  public BaseResponse code(Integer code) { 
-
-    this.code = code;
-    return this;
-  }
-
-  /**
-   * Numeric status code representing the result
-   * @return code
-   **/
-  
-  @Schema(description = "Numeric status code representing the result")
-  
-  public Integer getCode() {  
-    return code;
-  }
-
-
-
-  public void setCode(Integer code) { 
-    this.code = code;
-  }
-
   @Override
   public boolean equals(java.lang.Object o) {
     if (this == o) {
@@ -119,14 +90,13 @@ public class BaseResponse   {
       return false;
     }
     BaseResponse baseResponse = (BaseResponse) o;
-    return Objects.equals(this.status, baseResponse.status) &&
-        Objects.equals(this.message, baseResponse.message) &&
-        Objects.equals(this.code, baseResponse.code);
+    return Objects.equals(this.code, baseResponse.code) &&
+        Objects.equals(this.message, baseResponse.message);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(status, message, code);
+    return Objects.hash(code, message);
   }
 
   @Override
@@ -134,9 +104,8 @@ public class BaseResponse   {
     StringBuilder sb = new StringBuilder();
     sb.append("class BaseResponse {\n");
     
-    sb.append("    status: ").append(toIndentedString(status)).append("\n");
-    sb.append("    message: ").append(toIndentedString(message)).append("\n");
     sb.append("    code: ").append(toIndentedString(code)).append("\n");
+    sb.append("    message: ").append(toIndentedString(message)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -1,8 +1,6 @@
 package io.swagger.model;
 
 import java.util.Objects;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.model.BaseResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.validation.annotation.Validated;
@@ -20,40 +18,10 @@ import javax.validation.constraints.*;
 @Schema(description = "Response after releasing tickets.")
 @Validated
 @NotUndefined
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2025-02-17T20:48:49.358959185Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2025-02-18T09:21:40.228845167Z[GMT]")
 
 
-public class ReleaseTicketsResponse   {
-  @JsonProperty("baseResponse")
-
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
-  private BaseResponse baseResponse = null;
-
-
-  public ReleaseTicketsResponse baseResponse(BaseResponse baseResponse) { 
-
-    this.baseResponse = baseResponse;
-    return this;
-  }
-
-  /**
-   * Get baseResponse
-   * @return baseResponse
-   **/
-  
-  @Schema(description = "")
-  
-@Valid
-  public BaseResponse getBaseResponse() {  
-    return baseResponse;
-  }
-
-
-
-  public void setBaseResponse(BaseResponse baseResponse) { 
-    this.baseResponse = baseResponse;
-  }
+public class ReleaseTicketsResponse extends BaseResponse  {
 
   @Override
   public boolean equals(java.lang.Object o) {
@@ -63,21 +31,19 @@ public class ReleaseTicketsResponse   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ReleaseTicketsResponse releaseTicketsResponse = (ReleaseTicketsResponse) o;
-    return Objects.equals(this.baseResponse, releaseTicketsResponse.baseResponse);
+    return true;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(baseResponse);
+    return Objects.hash(super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ReleaseTicketsResponse {\n");
-    
-    sb.append("    baseResponse: ").append(toIndentedString(baseResponse)).append("\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("}");
     return sb.toString();
   }

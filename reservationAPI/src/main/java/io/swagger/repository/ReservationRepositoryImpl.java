@@ -51,14 +51,11 @@ public class ReservationRepositoryImpl implements ReservationRepository {
             Ticket ticket = eventIdToTickets.get(eventId).stream()
                     .filter(t -> t.getEventId().equals(eventId) && t.getTicketId().equals(ticketId))
                     .findFirst()
-                    .orElseThrow(() -> new Exception("Ticket not found"));
+                    .orElseThrow(() -> new TicketNotFoundException("Ticket not found"));
             if (ticket.getAvailability() == TicketAvailability.RESERVED) {
                 throw new TicketAlreadyReservedException("Ticket " + ticketId + " is already reserved");
             }
             reservedTickets.add(ticket);
-        }
-        if (reservedTickets.isEmpty()) {
-            throw new TicketNotFoundException("No tickets found");
         }
         for (Ticket ticket : reservedTickets) {
             ticket.setAvailability(TicketAvailability.RESERVED);

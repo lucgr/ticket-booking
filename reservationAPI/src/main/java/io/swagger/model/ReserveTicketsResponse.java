@@ -18,21 +18,14 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
- * Response after reserving tickets, returning the order ID and ticket details.
+ * ReserveTicketsResponse
  */
-@Schema(description = "Response after reserving tickets, returning the order ID and ticket details.")
 @Validated
 @NotUndefined
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2025-02-17T20:48:49.358959185Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2025-02-18T09:21:40.228845167Z[GMT]")
 
 
-public class ReserveTicketsResponse   {
-  @JsonProperty("baseResponse")
-
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
-  private BaseResponse baseResponse = null;
-
+public class ReserveTicketsResponse extends BaseResponse  {
   @JsonProperty("orderId")
 
   @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
@@ -42,30 +35,6 @@ public class ReserveTicketsResponse   {
   @JsonProperty("tickets")
   @Valid
   private List<Ticket> tickets = null;
-
-  public ReserveTicketsResponse baseResponse(BaseResponse baseResponse) { 
-
-    this.baseResponse = baseResponse;
-    return this;
-  }
-
-  /**
-   * Get baseResponse
-   * @return baseResponse
-   **/
-  
-  @Schema(description = "")
-  
-@Valid
-  public BaseResponse getBaseResponse() {  
-    return baseResponse;
-  }
-
-
-
-  public void setBaseResponse(BaseResponse baseResponse) { 
-    this.baseResponse = baseResponse;
-  }
 
   public ReserveTicketsResponse orderId(String orderId) { 
 
@@ -130,22 +99,21 @@ public class ReserveTicketsResponse   {
       return false;
     }
     ReserveTicketsResponse reserveTicketsResponse = (ReserveTicketsResponse) o;
-    return Objects.equals(this.baseResponse, reserveTicketsResponse.baseResponse) &&
-        Objects.equals(this.orderId, reserveTicketsResponse.orderId) &&
-        Objects.equals(this.tickets, reserveTicketsResponse.tickets);
+    return Objects.equals(this.orderId, reserveTicketsResponse.orderId) &&
+        Objects.equals(this.tickets, reserveTicketsResponse.tickets) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(baseResponse, orderId, tickets);
+    return Objects.hash(orderId, tickets, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ReserveTicketsResponse {\n");
-    
-    sb.append("    baseResponse: ").append(toIndentedString(baseResponse)).append("\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    orderId: ").append(toIndentedString(orderId)).append("\n");
     sb.append("    tickets: ").append(toIndentedString(tickets)).append("\n");
     sb.append("}");
