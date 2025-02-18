@@ -4,8 +4,13 @@ services:
   conductor-server:
     environment:
       - CONFIG_PROP=config-postgres.properties
-    image: conductor_server
-    container_name: conductor_server
+    image: conductor:server
+    container_name: conductor-server
+    build:
+      context: ../
+      dockerfile: docker/server/Dockerfile
+      args:
+        YARN_OPTS: ${YARN_OPTS}
     networks:
       - internal
     ports:

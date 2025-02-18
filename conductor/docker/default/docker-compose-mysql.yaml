@@ -5,15 +5,18 @@ services:
   conductor-server:
     environment:
       - CONFIG_PROP=config-mysql.properties
-    image: r0drigo/conductor-oss:3.21.12
-    container_name: conductor_server
+    image: conductor:server
+    container_name: conductor-server
+    build:
+      context: ../
+      dockerfile: docker/server/Dockerfile
+      args:
+        YARN_OPTS: ${YARN_OPTS}
     networks:
       - internal
     ports:
       - 8080:8080
       - 8127:5000
-    volumes:
-      - ../config:/app/config
     healthcheck:
       test: [ "CMD", "curl","-I" ,"-XGET", "http://localhost:8080/health" ]
       interval: 60s
@@ -23,7 +26,6 @@ services:
       - conductor-elasticsearch:es
       - conductor-mysql:mysql
       - conductor-redis:rs
-      - rabbitmq:rabbitmq
     depends_on:
       conductor-elasticsearch:
         condition: service_healthy
@@ -61,7 +63,7 @@ services:
   conductor-redis:
     image: redis:6.2.3-alpine
     volumes:
-      - ../config/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       - internal
     ports:
@@ -92,23 +94,7 @@ services:
         max-size: "1k"
         max-file: "3"
 
-  rabbitmq:
-    image: rabbitmq:management
-    container_name: rabbitmq
-    networks:
-      - internal
-    ports:
-      - "5672:5672"        # RabbitMQ default port
-      - "15672:15672"      # RabbitMQ management UI
-    environment:
-      RABBITMQ_DEFAULT_USER: user      # Default username
-      RABBITMQ_DEFAULT_PASS: password  # Default password
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq  # Persistent data storage
-
 volumes:
-  rabbitmq_data:
-    driver: local
   conductor_mysql:
     driver: local
   esdata-conductor:
