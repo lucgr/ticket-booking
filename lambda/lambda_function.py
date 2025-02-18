@@ -25,8 +25,8 @@ def lambda_handler(event, context):
         else:
             data = body
         customer_name = data['customer_name']
-        events = data['events'] # Expected to be a list of dicts with keys: ticket_id, price etc.
-        # tickets = data['tickets']  # Expected to be a list of dicts with keys: ticket_id, event_id, price etc.
+        events = data['events'] # Expected to be a list of dicts with keys: ticketId, price etc.
+        # tickets = data['tickets']  # Expected to be a list of dicts with keys: ticketId, event_id, price etc.
     except Exception as e:
         return {
             'statusCode': 400,
@@ -57,7 +57,7 @@ def lambda_handler(event, context):
         c.drawString(50, y, f"Event: {event_id}")
         y -= 40
         for ticket in tickets:
-            ticket_id = ticket.get('ticket_id')
+            ticket_id = ticket.get('ticketId')
             price = ticket.get('price')
 
             # Writing ticket details to the PDF
