@@ -1,0 +1,264 @@
+{
+  "createTime": 0,
+  "updateTime": 1739839481559,
+  "name": "TicketBooking",
+  "description": "",
+  "version": 4,
+  "tasks": [
+    {
+      "name": "Seat Reservation",
+      "taskReferenceName": "seat_reservation",
+      "inputParameters": {
+        "http_request": {
+          "uri": "https://api.restful-api.dev/objects",
+          "method": "POST",
+          "body": {
+            "oderId": "${workflow.workflowId}",
+            "userId": "${workflow.input.userId}",
+            "eventId": "${workflow.input.eventId}",
+            "ticketsIds": "${workflow.input.ticketsIds}"
+          }
+        }
+      },
+      "type": "HTTP",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "Reservation Status",
+      "taskReferenceName": "seat_reservation_status",
+      "inputParameters": {
+        "status": "${seat_reservation.output.response.statusCode}"
+      },
+      "type": "DECISION",
+      "caseValueParam": "status",
+      "decisionCases": {
+        "200": [
+          {
+            "name": "Send Payment Event",
+            "taskReferenceName": "payment_send",
+            "inputParameters": {
+              "body": {
+                "orderId": "${workflow.workflowId}",
+                "userId": "${workflow.input.userId}",
+                "eventId": "${workflow.input.eventId}",
+                "ticketsIds": "${workflow.input.ticketsIds}"
+              }
+            },
+            "type": "EVENT",
+            "sink": "conductor:internal_event_name",
+            "asyncComplete": false,
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "Receive Payment Event",
+            "taskReferenceName": "payment_receive",
+            "inputParameters": {
+              "duration": "10s"
+            },
+            "type": "WAIT",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "Payment Status",
+            "taskReferenceName": "payment_status",
+            "inputParameters": {
+              "status": "${payment_receive.output.status}"
+            },
+            "type": "DECISION",
+            "caseValueParam": "status",
+            "decisionCases": {
+              "200": [
+                {
+                  "name": "Generate Ticket",
+                  "taskReferenceName": "generate_ticket",
+                  "inputParameters": {
+                    "http_request": {
+                      "uri": "https://api.restful-api.dev/objects",
+                      "method": "POST",
+                      "body": {
+                        "oderId": "${workflow.workflowId}",
+                        "userId": "${workflow.input.userId}",
+                        "eventId": "${workflow.input.eventId}",
+                        "ticketsIds": "${workflow.input.ticketsIds}"
+                      }
+                    }
+                  },
+                  "type": "HTTP",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                }
+              ],
+              "500": [
+                {
+                  "name": "Remove Seat Reservation",
+                  "taskReferenceName": "seat_reservation_undo",
+                  "inputParameters": {
+                    "http_request": {
+                      "uri": "https://api.restful-api.dev/objects",
+                      "method": "POST",
+                      "body": {
+                        "oderId": "${workflow.workflowId}"
+                      }
+                    }
+                  },
+                  "type": "HTTP",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                }
+              ]
+            },
+            "defaultCase": [
+              {
+                "name": "Timeout",
+                "taskReferenceName": "payment_timeout",
+                "inputParameters": {
+                  "message": "test",
+                  "evaluatorType": "javascript",
+                  "expression": "function scriptFun(){$.message}"
+                },
+                "type": "INLINE",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              }
+            ],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "409": [
+          {
+            "name": "Reservation Conflict",
+            "taskReferenceName": "reservation_conflict",
+            "inputParameters": {
+              "message": "test",
+              "evaluatorType": "javascript",
+              "expression": "function scriptFun(){$.message}"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ]
+      },
+      "defaultCase": [
+        {
+          "name": "Reservation error",
+          "taskReferenceName": "reservation_error",
+          "inputParameters": {
+            "message": "test",
+            "evaluatorType": "javascript",
+            "expression": "function scriptFun(){$}"
+          },
+          "type": "INLINE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        }
+      ],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "userId",
+    "eventId",
+    "ticketsIds"
+  ],
+  "outputParameters": {},
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "example@email.com",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true
+}
