@@ -172,7 +172,7 @@
             "taskReferenceName": "payment_message",
             "inputParameters": {
               "code": "${payment_receive.output.code}",
-              "url" : "${generate_ticket.output.url}",
+              "url" : "${generate_ticket.output.response.body.url}",
               "evaluatorType": "javascript",
               "expression": "(function () {if($.code === 200) return $.url; else if($.code === 500) return 'Order Failure'; else return 'Payment Timeout'})()"
             },
