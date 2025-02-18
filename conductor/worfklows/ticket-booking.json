@@ -1,6 +1,6 @@
 {
   "createTime": 0,
-  "updateTime": 1739839481559,
+  "updateTime": 1739880212978,
   "name": "TicketBooking",
   "description": "",
   "version": 4,
@@ -10,13 +10,13 @@
       "taskReferenceName": "seat_reservation",
       "inputParameters": {
         "http_request": {
-          "uri": "https://api.restful-api.dev/objects",
+          "uri": "http://reservation-service:8080/reservations",
           "method": "POST",
           "body": {
-            "oderId": "${workflow.workflowId}",
+            "orderId": "${workflow.workflowId}",
             "userId": "${workflow.input.userId}",
             "eventId": "${workflow.input.eventId}",
-            "ticketsIds": "${workflow.input.ticketsIds}"
+            "ticketIds": "${workflow.input.ticketsIds}"
           }
         }
       },
@@ -37,7 +37,7 @@
       "name": "Reservation Status",
       "taskReferenceName": "seat_reservation_status",
       "inputParameters": {
-        "status": "${seat_reservation.output.response.statusCode}"
+        "status": "${seat_reservation.output.response.body.code}"
       },
       "type": "DECISION",
       "caseValueParam": "status",
@@ -51,19 +51,19 @@
                 "orderId": "${workflow.workflowId}",
                 "userId": "${workflow.input.userId}",
                 "eventId": "${workflow.input.eventId}",
-                "ticketsIds": "${workflow.input.ticketsIds}"
+                "tickets": "${seat_reservation.output.tickets}"
               }
             },
             "type": "EVENT",
-            "sink": "conductor:internal_event_name",
-            "asyncComplete": false,
             "decisionCases": {},
             "defaultCase": [],
             "forkTasks": [],
             "startDelay": 0,
             "joinOn": [],
+            "sink": "amqp_queue:conductor",
             "optional": false,
             "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
             "loopOver": [],
             "onStateChange": {},
             "permissive": false
@@ -91,7 +91,7 @@
             "name": "Payment Status",
             "taskReferenceName": "payment_status",
             "inputParameters": {
-              "status": "${payment_receive.output.status}"
+              "status": "${payment_receive.output.code}"
             },
             "type": "DECISION",
             "caseValueParam": "status",
@@ -125,45 +125,19 @@
                   "onStateChange": {},
                   "permissive": false
                 }
-              ],
-              "500": [
-                {
-                  "name": "Remove Seat Reservation",
-                  "taskReferenceName": "seat_reservation_undo",
-                  "inputParameters": {
-                    "http_request": {
-                      "uri": "https://api.restful-api.dev/objects",
-                      "method": "POST",
-                      "body": {
-                        "oderId": "${workflow.workflowId}"
-                      }
-                    }
-                  },
-                  "type": "HTTP",
-                  "decisionCases": {},
-                  "defaultCase": [],
-                  "forkTasks": [],
-                  "startDelay": 0,
-                  "joinOn": [],
-                  "optional": false,
-                  "defaultExclusiveJoinTask": [],
-                  "asyncComplete": false,
-                  "loopOver": [],
-                  "onStateChange": {},
-                  "permissive": false
-                }
               ]
             },
             "defaultCase": [
               {
-                "name": "Timeout",
-                "taskReferenceName": "payment_timeout",
+                "name": "Remove Seat Reservation",
+                "taskReferenceName": "seat_reservation_undo",
                 "inputParameters": {
-                  "message": "test",
-                  "evaluatorType": "javascript",
-                  "expression": "function scriptFun(){$.message}"
+                  "http_request": {
+                    "uri": "http://reservation-service:8080/reservations/${workflow.workflowId}",
+                    "method": "PUT"
+                  }
                 },
-                "type": "INLINE",
+                "type": "HTTP",
                 "decisionCases": {},
                 "defaultCase": [],
                 "forkTasks": [],
@@ -186,16 +160,14 @@
             "loopOver": [],
             "onStateChange": {},
             "permissive": false
-          }
-        ],
-        "409": [
+          },
           {
-            "name": "Reservation Conflict",
-            "taskReferenceName": "reservation_conflict",
+            "name": "Payment Message",
+            "taskReferenceName": "payment_message",
             "inputParameters": {
-              "message": "test",
+              "code": "${payment_receive.output.code}",
               "evaluatorType": "javascript",
-              "expression": "function scriptFun(){$.message}"
+              "expression": "(function () {if($.code === 200) return 'Order Success'; else if($.code === 500) return 'Order Failure'; else return 'Payment Timeout'})()"
             },
             "type": "INLINE",
             "decisionCases": {},
@@ -217,9 +189,9 @@
           "name": "Reservation error",
           "taskReferenceName": "reservation_error",
           "inputParameters": {
-            "message": "test",
+            "message": "${seat_reservation.output.response.body.message}",
             "evaluatorType": "javascript",
-            "expression": "function scriptFun(){$}"
+            "expression": "(function () {return $.message})()"
           },
           "type": "INLINE",
           "decisionCases": {},
