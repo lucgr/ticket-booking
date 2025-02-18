@@ -44,7 +44,7 @@ public class ReservationsApiController implements ReservationsApi {
         if (accept != null && accept.contains("application/json")) {
             try {
                 ReleaseTicketsResponse response = reservationService.release(orderId);
-                return new ResponseEntity<ReleaseTicketsResponse>(response, HttpStatus.valueOf(response.getBaseResponse().getCode()));
+                return new ResponseEntity<ReleaseTicketsResponse>(response, HttpStatus.valueOf(response.getCode()));
             } catch (Exception e) {
                 log.error("An error occurred while releasing tickets", e);
                 return new ResponseEntity<ReleaseTicketsResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -58,7 +58,7 @@ public class ReservationsApiController implements ReservationsApi {
         if (accept != null && accept.contains("application/json")) {
             try {
                 ReserveTicketsResponse response = reservationService.reserve(body);
-                return new ResponseEntity<>(response, HttpStatus.OK);
+                return new ResponseEntity<ReserveTicketsResponse>(response, HttpStatus.valueOf(response.getCode()));
             } catch (Exception e) {
                 log.error("An error occurred while reserving tickets", e);
                 return new ResponseEntity<ReserveTicketsResponse>(HttpStatus.INTERNAL_SERVER_ERROR);

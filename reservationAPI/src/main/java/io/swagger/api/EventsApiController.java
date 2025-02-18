@@ -42,9 +42,9 @@ public class EventsApiController implements EventsApi {
         if (accept != null && accept.contains("application/json")) {
             try {
                 CreateEventResponse response = reservationService.createEvent(body);
-                return new ResponseEntity<CreateEventResponse>(response, HttpStatus.valueOf(response.getBaseResponse().getCode()));
+                return new ResponseEntity<CreateEventResponse>(response, HttpStatus.valueOf(response.getCode()));
             } catch (Exception e) {
-                log.error("An error occurred while releasing tickets", e);
+                log.error("An error occurred while creating event", e);
                 return new ResponseEntity<CreateEventResponse>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }

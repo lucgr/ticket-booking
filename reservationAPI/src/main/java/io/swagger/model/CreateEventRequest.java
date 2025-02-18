@@ -18,7 +18,7 @@ import javax.validation.constraints.*;
  */
 @Validated
 @NotUndefined
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2025-02-17T20:48:49.358959185Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2025-02-18T09:21:40.228845167Z[GMT]")
 
 
 public class CreateEventRequest   {
@@ -96,7 +96,7 @@ public class CreateEventRequest   {
    * @return seatPrice
    **/
   
-  @Schema(required = true, description = "Price of each seat")
+  @Schema(example = "100.15", required = true, description = "Price of each seat")
   
   @NotNull
   public Float getSeatPrice() {  

@@ -24,105 +24,67 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public CreateEventResponse createEvent(CreateEventRequest request) {
+        CreateEventResponse response = new CreateEventResponse();
         try {
             String eventId = reservationRepository.createEvent(
                     request.getEventName(),
                     request.getNumberOfSeats(),
                     request.getSeatPrice()
             );
-            return new CreateEventResponse()
-                    .baseResponse(
-                            new BaseResponse()
-                                    .code(HttpStatus.OK.value())
-                                    .message("Event created successfully")
-                                    .status("success")
-                    ).eventId(eventId);
+            response.setCode(HttpStatus.OK.value());
+            response.setMessage("Event created successfully");
+            response.setEventId(eventId);
+            return response;
         } catch (Exception e) {
-            return new CreateEventResponse()
-                    .baseResponse(
-                            new BaseResponse()
-                                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                                    .message("Failed to reserve tickets " + e.getMessage())
-                                    .status("error")
-                    );
+            response.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to create event " + e.getMessage());
+            return response;
         }
     }
 
     public ReserveTicketsResponse reserve(ReserveTicketsRequest request) {
+        ReserveTicketsResponse response = new ReserveTicketsResponse();
+        response.setOrderId(request.getOrderId());
         try {
             List<Ticket> tickets = reservationRepository.reserve(
                     request.getOrderId(),
                     request.getEventId(),
                     request.getTicketIds()
             );
-            return new ReserveTicketsResponse()
-                    .baseResponse(
-                            new BaseResponse()
-                                    .code(HttpStatus.OK.value())
-                                    .message("Tickets reserved successfully")
-                                    .status("success")
-                    ).tickets(tickets);
-        } catch (EventNotFoundException e) {
-            return new ReserveTicketsResponse()
-                    .baseResponse(
-                            new BaseResponse()
-                                    .code(HttpStatus.NOT_FOUND.value())
-                                    .message("Event not found")
-                                    .status("error")
-                    );
-        } catch (TicketNotFoundException e) {
-            return new ReserveTicketsResponse()
-                    .baseResponse(
-                            new BaseResponse()
-                                    .code(HttpStatus.NOT_FOUND.value())
-                                    .message("Ticket(s) not found")
-                                    .status("error")
-                    );
+            response.setCode(HttpStatus.OK.value());
+            response.setMessage("Tickets reserved successfully");
+            response.setTickets(tickets);
+            return response;
+        } catch (EventNotFoundException | TicketNotFoundException e) {
+            response.setCode(HttpStatus.NOT_FOUND.value());
+            response.setMessage(e.getMessage());
+            return response;
         } catch (TicketAlreadyReservedException e) {
-            return new ReserveTicketsResponse()
-                    .baseResponse(
-                            new BaseResponse()
-                                    .code(HttpStatus.CONFLICT.value())
-                                    .message(e.getMessage())
-                                    .status("error")
-                    );
+            response.setCode(HttpStatus.CONFLICT.value());
+            response.setMessage(e.getMessage());
+            return response;
         } catch (Exception e) {
-            return new ReserveTicketsResponse()
-                    .baseResponse(
-                            new BaseResponse()
-                                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                                    .message("Failed to reserve tickets: " + e.getMessage())
-                                    .status("error")
-                    );
+            response.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to reserve tickets: " + e.getMessage());
+            return response;
         }
     }
 
     public ReleaseTicketsResponse release(String orderId) {
+        ReleaseTicketsResponse response = new ReleaseTicketsResponse();
         try {
             reservationRepository.release(orderId);
-            return new ReleaseTicketsResponse()
-                    .baseResponse(
-                            new BaseResponse()
-                                    .code(HttpStatus.OK.value())
-                                    .message("Tickets released successfully")
-                                    .status("success")
-                    );
+            response.setCode(HttpStatus.OK.value());
+            response.setMessage("Tickets released successfully");
+            return response;
         } catch (OrderNotFoundException e) {
-            return new ReleaseTicketsResponse()
-                    .baseResponse(
-                            new BaseResponse()
-                                    .code(HttpStatus.NOT_FOUND.value())
-                                    .message("Order not found")
-                                    .status("error")
-                    );
+            response.setCode(HttpStatus.NOT_FOUND.value());
+            response.setMessage(e.getMessage());
+            return response;
         } catch (Exception e) {
-            return new ReleaseTicketsResponse()
-                    .baseResponse(
-                            new BaseResponse()
-                                    .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                                    .message("Failed to release tickets")
-                                    .status("error")
-                    );
+            response.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.setMessage("Failed to release tickets: " + e.getMessage());
+            return response;
         }
     }
 }

@@ -15,51 +15,20 @@ import javax.validation.Valid;
 import javax.validation.constraints.*;
 
 /**
- * Response after creating an event, returning the event ID.
+ * CreateEventResponse
  */
-@Schema(description = "Response after creating an event, returning the event ID.")
 @Validated
 @NotUndefined
-@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2025-02-17T20:48:49.358959185Z[GMT]")
+@javax.annotation.Generated(value = "io.swagger.codegen.v3.generators.java.SpringCodegen", date = "2025-02-18T09:21:40.228845167Z[GMT]")
 
 
-public class CreateEventResponse   {
-  @JsonProperty("baseResponse")
-
-  @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
-  @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
-  private BaseResponse baseResponse = null;
-
+public class CreateEventResponse extends BaseResponse  {
   @JsonProperty("eventId")
 
   @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
   @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
   private String eventId = null;
 
-
-  public CreateEventResponse baseResponse(BaseResponse baseResponse) { 
-
-    this.baseResponse = baseResponse;
-    return this;
-  }
-
-  /**
-   * Get baseResponse
-   * @return baseResponse
-   **/
-  
-  @Schema(description = "")
-  
-@Valid
-  public BaseResponse getBaseResponse() {  
-    return baseResponse;
-  }
-
-
-
-  public void setBaseResponse(BaseResponse baseResponse) { 
-    this.baseResponse = baseResponse;
-  }
 
   public CreateEventResponse eventId(String eventId) { 
 
@@ -93,21 +62,20 @@ public class CreateEventResponse   {
       return false;
     }
     CreateEventResponse createEventResponse = (CreateEventResponse) o;
-    return Objects.equals(this.baseResponse, createEventResponse.baseResponse) &&
-        Objects.equals(this.eventId, createEventResponse.eventId);
+    return Objects.equals(this.eventId, createEventResponse.eventId) &&
+        super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(baseResponse, eventId);
+    return Objects.hash(eventId, super.hashCode());
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class CreateEventResponse {\n");
-    
-    sb.append("    baseResponse: ").append(toIndentedString(baseResponse)).append("\n");
+    sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    eventId: ").append(toIndentedString(eventId)).append("\n");
     sb.append("}");
     return sb.toString();
