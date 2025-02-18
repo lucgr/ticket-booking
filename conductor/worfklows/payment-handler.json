@@ -1,0 +1,21 @@
+{
+ "name": "PaymentComplete",
+ "description": "",
+ "event": "amqp_queue:conductor",
+ "evaluatorType": "javascript",
+ "condition": "true",
+  "actions": [
+        {
+        "action": "complete_task",
+        "complete_task": {
+          "workflowId": "${body.orderId}",
+          "taskRefName": "payment_receive",
+          "output": {
+            "response": "${body.orderId}"
+          }
+        },
+        "expandInlineJSON": true
+    }
+  ],
+"active": true
+}
