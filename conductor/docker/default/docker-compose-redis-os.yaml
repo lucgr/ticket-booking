@@ -5,8 +5,13 @@ services:
     environment:
       - CONFIG_PROP=config-redis-os.properties
       - JAVA_OPTS=-Dpolyglot.engine.WarnInterpreterOnly=false
-    image: r0drigo/conductor-oss:3.21.12
-    container_name: conductor_server
+    image: conductor:server
+    container_name: conductor-server
+    build:
+      context: ../
+      dockerfile: docker/server/Dockerfile
+      args:
+        YARN_OPTS: ${YARN_OPTS}
     networks:
       - internal
     ports:
