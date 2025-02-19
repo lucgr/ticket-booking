@@ -2,6 +2,8 @@ import time
 import pika
 import random
 import json
+from multiprocessing import Pool
+from multiprocessing import Process
 
 # Specify the name of the IP address
 
@@ -42,7 +44,7 @@ def simulate_payment():
 
 
 def process_payment_request(ch, method, properties, body):
-    
+    # time.sleep(5) # Testing purposes
     message = json.loads(body.decode())
     
     total = 0
@@ -124,10 +126,15 @@ def send_payment_request(request_id: str = "2908beb8-1743-4c4e-80d8-4daf8e8a7b4c
     print(f"Payment request for order {message.get('body', {}).get('orderId', 'Unknown Order')} sent to queue", flush=True)
 
 
+def createNewProcess(ch, method, properties, body):
+    p = Process(target=process_payment_request, args=(ch, method, properties, body))
+    p.start()
+    print("Extra consumer process spawned with PID:", p.pid, flush=True)
+    
 def starts_server():
     print("Trying to set up connection\n", flush=True)
     connection, channel = rabbitmq_connection()
-    channel.basic_consume(queue=INPUT_QUEUE_NAME, on_message_callback=process_payment_request)
+    channel.basic_consume(queue=INPUT_QUEUE_NAME, on_message_callback=createNewProcess)
     print("Payment service is listening for messages...", flush=True)
     channel.start_consuming()
     
