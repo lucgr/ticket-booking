@@ -1,6 +1,5 @@
 import pytest
 import json
-import logging
 from unittest.mock import patch, MagicMock
 from lambda_function import generate_presigned_url
 

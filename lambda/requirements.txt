@@ -2,3 +2,6 @@ boto3~=1.36
 qrcode~=8.0
 logging~=0.4.9
 reportlab~=4.3
+
+ruff~=0.9.6
+pytest~=8.3
