@@ -16,11 +16,8 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
-    - name: Build Docker image
-      run: docker build -t reservation-api ./reservationAPI
-
-    - name: Run Docker container
-      run: docker run -d -p 8080:8080 --name reservation-api reservation-api
+    - name: Build and run Docker containers
+      run: docker compose -f ./reservationAPI/docker-compose.yaml up -d
 
     - name: Install Newman
       run: npm install -g newman

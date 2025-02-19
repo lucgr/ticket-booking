@@ -1,79 +1,79 @@
 package io.swagger.repository;
 
-import io.swagger.exceptions.EventNotFoundException;
-import io.swagger.exceptions.OrderNotFoundException;
 import io.swagger.exceptions.TicketAlreadyReservedException;
 import io.swagger.exceptions.TicketNotFoundException;
 import io.swagger.model.Ticket;
 import io.swagger.model.TicketAvailability;
+import io.swagger.model.document.Order;
+import io.swagger.repository.mongodb.OrderCollection;
+import io.swagger.repository.mongodb.TicketCollection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class ReservationRepositoryImpl implements ReservationRepository {
-    private final Map<String, List<Ticket>> orderIdToTicketIds;
-    private final Map<String, List<Ticket>> eventIdToTickets;
 
     @Autowired
-    public ReservationRepositoryImpl() {
-        this.orderIdToTicketIds = new HashMap<>();
-        this.eventIdToTickets = new HashMap<>();
-    }
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
+    private OrderCollection orderCollection;
+
+    @Autowired
+    private TicketCollection ticketCollection;
 
     @Override
-    public String createEvent(String eventName, int ticketsCount, float price) throws Exception {
+    public String createEvent(String eventName, int ticketsCount, float price) {
         String eventId = java.util.UUID.randomUUID().toString();
-        List<Ticket> tickets = new ArrayList<>();
-        for (int i = 1; i <= ticketsCount; i++) {
-            Ticket ticket = new Ticket()
-                    .eventId(eventId)
-                    .ticketId(String.valueOf(i))
-                    .availability(TicketAvailability.AVAILABLE)
-                    .price(price);
+        List<io.swagger.model.document.Ticket> tickets = new ArrayList<>();
+        for (int ticketId = 1; ticketId <= ticketsCount; ticketId++) {
+            io.swagger.model.document.Ticket ticket = new io.swagger.model.document.Ticket(
+                    ticketId,
+                    eventId,
+                    TicketAvailability.AVAILABLE.toString(),
+                    price
+            );
             tickets.add(ticket);
         }
-        eventIdToTickets.put(eventId, tickets);
+        ticketCollection.insertTickets(tickets);
         return eventId;
     }
 
     @Override
-    public List<Ticket> reserve(String orderId, String eventId, List<String> ticketIds) throws Exception {
-        List<Ticket> reservedTickets = new ArrayList<>();
-        if (!eventIdToTickets.containsKey(eventId)) {
-            throw new EventNotFoundException("Event not found");
+    @Transactional
+    public List<Ticket> reserve(String orderId, String userId, String eventId, List<Integer> ticketIds) {
+        List<io.swagger.model.document.Ticket> availableTickets = ticketCollection.findByTicketIds(eventId, ticketIds);
+        if (availableTickets.size() != ticketIds.size()) {
+            throw new TicketNotFoundException("Ticket not found");
         }
-        for (String ticketId : ticketIds) {
-            Ticket ticket = eventIdToTickets.get(eventId).stream()
-                    .filter(t -> t.getEventId().equals(eventId) && t.getTicketId().equals(ticketId))
-                    .findFirst()
-                    .orElseThrow(() -> new TicketNotFoundException("Ticket not found"));
-            if (ticket.getAvailability() == TicketAvailability.RESERVED) {
-                throw new TicketAlreadyReservedException("Ticket " + ticketId + " is already reserved");
+        for (io.swagger.model.document.Ticket ticket : availableTickets) {
+            if (!ticket.isAvailable()) {
+                throw new TicketAlreadyReservedException("Ticket " + ticket.getTicketId() + " is already reserved");
             }
-            reservedTickets.add(ticket);
         }
-        for (Ticket ticket : reservedTickets) {
-            ticket.setAvailability(TicketAvailability.RESERVED);
+        ticketCollection.updateTicketAvailability(eventId, ticketIds, TicketAvailability.RESERVED.toString());
+        orderCollection.insertOrder(new io.swagger.model.document.Order(orderId, userId, eventId, ticketIds));
+
+        List<Ticket> responseTickets = new ArrayList<>();
+        for (io.swagger.model.document.Ticket ticket : availableTickets) {
+            responseTickets.add(new io.swagger.model.Ticket()
+                    .ticketId(ticket.getTicketId())
+                    .eventId(ticket.getEventId())
+                    .availability(TicketAvailability.RESERVED)
+                    .price(ticket.getPrice())
+            );
         }
-        orderIdToTicketIds.put(orderId, reservedTickets);
-        return reservedTickets;
+        return responseTickets;
     }
 
-    public void release(String orderId) throws Exception {
-        if (!orderIdToTicketIds.containsKey(orderId)) {
-            throw new OrderNotFoundException("Order not found");
-        }
-        List<Ticket> reservedTickets = orderIdToTicketIds.get(orderId);
-        if (reservedTickets != null) {
-            for (Ticket ticket : reservedTickets) {
-                ticket.setAvailability(TicketAvailability.AVAILABLE);
-            }
-            orderIdToTicketIds.remove(orderId);
-        }
+    @Transactional
+    public void release(String orderId) {
+        Order order = orderCollection.findByOrderId(orderId);
+        ticketCollection.updateTicketAvailability(order.getEventId(), order.getTicketIds(), TicketAvailability.AVAILABLE.toString());
     }
 }

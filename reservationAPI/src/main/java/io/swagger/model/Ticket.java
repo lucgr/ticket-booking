@@ -27,7 +27,7 @@ public class Ticket   {
 
   @JsonInclude(JsonInclude.Include.NON_ABSENT)  // Exclude from JSON if absent
   @JsonSetter(nulls = Nulls.FAIL)    // FAIL setting if the value is null
-  private String ticketId = null;
+  private Integer ticketId = null;
 
   @JsonProperty("eventId")
 
@@ -54,7 +54,7 @@ public class Ticket   {
   private Float price = null;
 
 
-  public Ticket ticketId(String ticketId) { 
+  public Ticket ticketId(Integer ticketId) {
 
     this.ticketId = ticketId;
     return this;
@@ -67,13 +67,13 @@ public class Ticket   {
   
   @Schema(description = "Unique ticket identifier")
   
-  public String getTicketId() {  
+  public Integer getTicketId() {
     return ticketId;
   }
 
 
 
-  public void setTicketId(String ticketId) { 
+  public void setTicketId(Integer ticketId) {
     this.ticketId = ticketId;
   }
 

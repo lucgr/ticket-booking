@@ -71,7 +71,7 @@ public class CreateEventRequest   {
    * @return numberOfSeats
    **/
   
-  @Schema(required = true, description = "Total number of seats available")
+  @Schema(example = "100", required = true, description = "Total number of seats available")
   
   @NotNull
   public Integer getNumberOfSeats() {  

@@ -1,0 +1,38 @@
+volumes:
+  mongo_data:
+
+networks:
+  group8_network:
+
+services:
+  reservationAPI:
+    container_name: reservationAPI
+    image: group8/reservation_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DB_USERNAME: root
+      MONGO_DB_PASSWORD: root
+    ports:
+      - "8080:8080"
+    networks:
+      - group8_network
+
+  mongo:
+    container_name: mongo
+    volumes:
+      - "mongo_data:/data/db"
+    networks:
+      - group8_network
+    image: mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
