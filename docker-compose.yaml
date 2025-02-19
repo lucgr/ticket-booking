@@ -9,8 +9,8 @@ services:
     networks:
       - internal
     ports:
-      - 8080:8080
-      - 8127:5000
+      - "8080:8080"
+      - "8127:5000"
     volumes:
       - ./conductor/config:/app/config
     healthcheck:
@@ -47,7 +47,7 @@ services:
     networks:
       - internal
     ports:
-      - 6432:5432
+      - "6432:5432"
     healthcheck:
       test: timeout 5 bash -c 'cat < /dev/null > /dev/tcp/localhost/5432'
       interval: 5s
@@ -70,7 +70,7 @@ services:
     networks:
       - internal
     ports:
-      - 9201:9200
+      - "9201:9200"
     healthcheck:
       test: curl http://localhost:9200/_cluster/health -o /dev/null
       interval: 5s
