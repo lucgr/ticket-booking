@@ -44,3 +44,8 @@ node_modules
 
 *.class
 .idea
+
+.pytest_cache
+test-results
+.venv
+lambda/__pycache__/
