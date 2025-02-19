@@ -60,7 +60,7 @@
             "forkTasks": [],
             "startDelay": 0,
             "joinOn": [],
-            "sink": "amqp_queue:conductor",
+            "sink": "amqp_queue:payment_queue",
             "optional": false,
             "defaultExclusiveJoinTask": [],
             "asyncComplete": false,
@@ -72,7 +72,7 @@
             "name": "Receive Payment Event",
             "taskReferenceName": "payment_receive",
             "inputParameters": {
-              "duration": "10s"
+              "duration": "30s"
             },
             "type": "WAIT",
             "decisionCases": {},
