@@ -4,18 +4,15 @@ services:
   conductor-server:
     environment:
       - CONFIG_PROP=config-postgres-es7.properties
-    image: conductor:server
-    container_name: conductor-server
-    build:
-      context: ../
-      dockerfile: docker/server/Dockerfile
-      args:
-        YARN_OPTS: ${YARN_OPTS}
+    image: r0drigo/conductor-oss:3.21.12
+    container_name: conductor_server
     networks:
       - internal
     ports:
       - 8080:8080
       - 8127:5000
+    volumes:
+      - ./conductor/config:/app/config
     healthcheck:
       test: [ "CMD", "curl","-I" ,"-XGET", "http://localhost:8080/health" ]
       interval: 60s
@@ -24,11 +21,16 @@ services:
     links:
       - conductor-postgres:postgresdb
       - conductor-elasticsearch:es
+      - rabbitmq:rabbitmq
+      - reservation-service:reservation-service
     depends_on:
       conductor-postgres:
         condition: service_healthy
       conductor-elasticsearch:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
     logging:
       driver: "json-file"
       options:
@@ -80,10 +82,50 @@ services:
         max-size: "1k"
         max-file: "3"
 
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    networks:
+      - internal
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  reservation-service:
+    image:  r0drigo/reservation-api
+    container_name: reservation-service
+    networks:
+      - internal
+    ports:
+      - "8081:8080"
+
+  payment-service:
+    image: r0drigo/payment-api
+    container_name: payment-service
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    networks:
+      - internal
+
 volumes:
   pgdata-conductor:
     driver: local
   esdata-conductor:
+    driver: local
+  rabbitmq_data:
     driver: local
 
 networks:
