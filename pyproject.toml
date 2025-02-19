@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "lambda"
+version = "0.1.0"
+description = "Lambda function dependencies managed by Poetry"
+authors = ["Lucas Gether-Rønning <lucasgether@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "~=0.9.6"
+pytest = "~=8.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

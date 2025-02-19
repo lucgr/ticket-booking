@@ -1,6 +1,9 @@
 name: Test Reservation API
 
-on: [push]
+on:
+  push:
+    paths:
+      - 'reservationAPI/*'
 
 jobs:
   build-and-test:
