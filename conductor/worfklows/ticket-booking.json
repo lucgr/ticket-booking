@@ -105,7 +105,7 @@
                       "uri": "https://wz4spl916g.execute-api.eu-central-1.amazonaws.com/default/generateTicket",
                       "method": "POST",
                       "headers": {
-                        "x-api-key": "6hGD1z06sC9pM9vNMBFzK3ETQf7Ow1TX74RC7UzR"
+                        "x-api-key": "${workflow.input.apiKey}"
                       },
                       "body": {
                         "customer_name": "${workflow.input.userId}",
@@ -228,7 +228,8 @@
   "inputParameters": [
     "userId",
     "eventId",
-    "ticketsIds"
+    "ticketsIds",
+    "apiKey"
   ],
   "outputParameters": {},
   "schemaVersion": 2,
