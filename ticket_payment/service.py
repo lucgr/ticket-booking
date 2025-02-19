@@ -17,9 +17,11 @@ def rabbitmq_connection(retry_delay=5, maxRetries=10):
     while retries < maxRetries:
         try:
             print(f"Trying to connect to rabbitMQ (attempt {retries + 1})...", flush=True)
-            connection = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST))
+            credentials = pika.PlainCredentials("user", "password")
+            connection = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST, '5672', '/', credentials))
             channel = connection.channel()
-            channel.queue_declare(queue= INPUT_QUEUE_NAME)
+            channel.queue_declare(queue= INPUT_QUEUE_NAME, durable=True)
+            channel.queue_declare(queue=OUTPUT_QUEUE_NAME, durable=True)
             print("Connected to rabbitmq", flush=True)
             return connection, channel
         except pika.exceptions.AMQPConnectionError:
@@ -44,35 +46,36 @@ def simulate_payment():
 def process_payment_request(ch, method, properties, body):
     
     message = json.loads(body.decode())
+    orderId = message.get('body', {}).get('orderId', 'Unknown Order')
     
     total = 0
     for ticket in message.get("body", {}).get("tickets", []):
         total += ticket.get('price', 0)
-    
-    print(f"Payment request is received from {message.get('body', {}).get('orderId', 'Unknown Order')}, total: {total} euros, please enter payment details..", flush=True)
+
+    print(f"Payment request is received from {orderId}, total: {total} euros, please enter payment details..", flush=True)
     
     result, status_code = simulate_payment() # Simulation of payment, returns success, fail or timeout.
         
-    print(f"Payment was: {result} for request: {message.get('body', {}).get('orderId', 'Unknown Order')}, Status code: {status_code}", flush=True)
+    print(f"Payment was: {result} for request: {orderId}, Status code: {status_code}", flush=True)
     
     response = {
-        "code": status_code, 
+        "code": status_code,
         "message": "Payment: " + result,
-        "orderId": message.get('body', {}).get('orderId', 'Unknown Order'),
+        "orderId": orderId,
         "response": {
             "total": total,
             "status": result
         }
     } # Ideally this will be stored in the table
     
-    print(f"Sending response back: {message.get('body', {}).get('orderId', 'Unknown Order')}", flush=True)
+    print(f"Sending response back: {orderId}", flush=True)
     
     connection, channel = rabbitmq_connection()
-    channel.queue_declare(queue=OUTPUT_QUEUE_NAME)
-    channel.basic_publish(exchange='', routing_key=OUTPUT_QUEUE_NAME, body=json.dumps(response))
+    properties = pika.BasicProperties(message_id=orderId,correlation_id=orderId, delivery_mode=2,content_type="application/json", content_encoding="UTF-8")
+    channel.basic_publish(exchange='', routing_key=OUTPUT_QUEUE_NAME, body=json.dumps(response), properties=properties)
     connection.close()
     
-    print(f"Send finish: {message.get('body', {}).get('orderId', 'Unknown Order')}", flush=True)
+    print(f"Send finish: {orderId}", flush=True)
 
     ch.basic_ack(delivery_tag=method.delivery_tag)
     
