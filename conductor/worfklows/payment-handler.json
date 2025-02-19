@@ -1,17 +1,17 @@
 {
  "name": "PaymentComplete",
  "description": "",
- "event": "amqp_queue:conductor",
+ "event": "amqp_queue:payment_response_queue",
  "evaluatorType": "javascript",
  "condition": "true",
   "actions": [
         {
         "action": "complete_task",
         "complete_task": {
-          "workflowId": "${body.orderId}",
+          "workflowId": "${orderId}",
           "taskRefName": "payment_receive",
           "output": {
-            "response": "${body.orderId}",
+            "response": "${orderId}",
             "code" : 200
           }
         },

@@ -28,6 +28,8 @@ services:
         condition: service_healthy
       conductor-elasticsearch:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
     logging:
       driver: "json-file"
@@ -106,6 +108,17 @@ services:
       - internal
     ports:
       - "8081:8080"
+
+  payment-service:
+    image: r0drigo/payment-api
+    container_name: payment-service
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+    networks:
+      - internal
 
 volumes:
   pgdata-conductor:
