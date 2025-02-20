@@ -3,7 +3,7 @@ name: Test Ticket-Generation Lambda Code
 on:
     push:
         paths:
-        - 'lambda/*'
+        - 'lambda/**'
 
 jobs:
     test-ticket-generation:
