@@ -91,10 +91,20 @@
 							"",
 							"    pm.expect(response).to.be.an(\"object\");",
 							"    pm.expect(response).to.have.property(\"code\", 404);",
-							"    pm.expect(response).to.have.property(\"message\", \"Event not found\");",
+							"    pm.expect(response).to.have.property(\"message\", \"Ticket not found\");",
 							"    pm.expect(response).to.have.property(\"orderId\").that.is.a(\"string\");",
 							"    pm.expect(response).to.have.property(\"tickets\").that.is.null;",
 							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
 							""
 						],
 						"type": "text/javascript",
@@ -116,7 +126,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"orderId\": \"any-workflow-uuid-from-conductor\",\n  \"userId\": \"sivanat-subpaisarn\",\n  \"eventId\": \"invalid-event-id\",\n  \"ticketIds\": [\n    \"1\",\n    \"10\"\n  ]\n}",
+					"raw": "{\n  \"orderId\": \"{{$randomUUID}}\",\n  \"userId\": \"{{$randomUUID}}\",\n  \"eventId\": \"invalid-event-id\",\n  \"ticketIds\": [\n    1\n  ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -163,12 +173,23 @@
 							"    pm.expect(response).to.have.property(\"tickets\").that.is.an(\"array\").with.lengthOf(2);",
 							"",
 							"    response.tickets.forEach(ticket => {",
-							"        pm.expect(ticket).to.have.property(\"ticketId\").that.is.a(\"string\");",
+							"        pm.expect(ticket).to.have.property(\"ticketId\").that.is.a(\"number\");",
 							"        pm.expect(ticket).to.have.property(\"eventId\").that.is.a(\"string\");",
 							"        pm.expect(ticket).to.have.property(\"availability\", \"TICKET_AVAILABILITY_RESERVED\");",
 							"        pm.expect(ticket).to.have.property(\"price\").that.is.a(\"number\");",
 							"    });",
 							"});",
+							"pm.environment.set(\"orderId\", pm.response.json()[\"orderId\"])",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
 							""
 						],
 						"type": "text/javascript",
@@ -190,7 +211,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"orderId\": \"any-workflow-uuid-from-conductor\",\n  \"userId\": \"sivanat-subpaisarn\",\n  \"eventId\": \"{{eventId}}\",\n  \"ticketIds\": [\n    \"1\",\n    \"10\"\n  ]\n}",
+					"raw": "{\n  \"orderId\": \"{{$randomUUID}}\",\n  \"userId\": \"{{$randomUUID}}\",\n  \"eventId\": \"{{eventId}}\",\n  \"ticketIds\": [\n    1,\n    2\n  ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -242,6 +263,16 @@
 						"type": "text/javascript",
 						"packages": {}
 					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
 				}
 			],
 			"request": {
@@ -258,7 +289,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"orderId\": \"any-workflow-uuid-from-conductor\",\n  \"userId\": \"sivanat-subpaisarn\",\n  \"eventId\": \"{{eventId}}\",\n  \"ticketIds\": [\n    \"1\"\n  ]\n}",
+					"raw": "{\n  \"orderId\": \"${{$randomUUID}}\",\n  \"userId\": \"${{$randomUUID}}\",\n  \"eventId\": \"{{eventId}}\",\n  \"ticketIds\": [\n    1,\n    2\n  ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -381,7 +412,7 @@
 					}
 				],
 				"url": {
-					"raw": "http://localhost:8080/reservations/any-workflow-uuid-from-conductor",
+					"raw": "http://localhost:8080/reservations/{{orderId}}",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -389,7 +420,7 @@
 					"port": "8080",
 					"path": [
 						"reservations",
-						"any-workflow-uuid-from-conductor"
+						"{{orderId}}"
 					]
 				},
 				"description": "Generated from cURL: curl -X 'POST' \\\n  'http://localhost:8080/reservations' \\\n  -H 'accept: application/json' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n  \"orderId\": \"any-workflow-uuid-from-conductor\",\n  \"userId\": \"sivanat-subpaisarn\",\n  \"eventId\": \"invalid-event-id\",\n  \"ticketIds\": [\n    \"1\"\n  ]\n}'"

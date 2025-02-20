@@ -38,7 +38,7 @@ public class ReserveTicketsRequest   {
 
   @JsonProperty("ticketIds")
   @Valid
-  private List<String> ticketIds = new ArrayList<String>();
+  private List<Integer> ticketIds = new ArrayList<Integer>();
 
   public ReserveTicketsRequest orderId(String orderId) { 
 
@@ -115,13 +115,13 @@ public class ReserveTicketsRequest   {
     this.eventId = eventId;
   }
 
-  public ReserveTicketsRequest ticketIds(List<String> ticketIds) { 
+  public ReserveTicketsRequest ticketIds(List<Integer> ticketIds) {
 
     this.ticketIds = ticketIds;
     return this;
   }
 
-  public ReserveTicketsRequest addTicketIdsItem(String ticketIdsItem) {
+  public ReserveTicketsRequest addTicketIdsItem(Integer ticketIdsItem) {
     this.ticketIds.add(ticketIdsItem);
     return this;
   }
@@ -134,13 +134,13 @@ public class ReserveTicketsRequest   {
   @Schema(required = true, description = "List of ticket IDs to be reserved")
   
   @NotNull
-  public List<String> getTicketIds() {  
+  public List<Integer> getTicketIds() {
     return ticketIds;
   }
 
 
 
-  public void setTicketIds(List<String> ticketIds) { 
+  public void setTicketIds(List<Integer> ticketIds) {
 
     this.ticketIds = ticketIds;
   }

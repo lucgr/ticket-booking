@@ -15,8 +15,14 @@
 			"enabled": true
 		},
 		{
+			"key": "orderId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
 			"key": "numberOfSeats",
-			"value": "10",
+			"value": "2",
 			"type": "default",
 			"enabled": true
 		}

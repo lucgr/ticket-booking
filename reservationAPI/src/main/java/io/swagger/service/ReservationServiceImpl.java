@@ -48,6 +48,7 @@ public class ReservationServiceImpl implements ReservationService {
         try {
             List<Ticket> tickets = reservationRepository.reserve(
                     request.getOrderId(),
+                    request.getUserId(),
                     request.getEventId(),
                     request.getTicketIds()
             );
