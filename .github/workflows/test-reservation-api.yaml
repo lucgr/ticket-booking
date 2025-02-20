@@ -3,7 +3,7 @@ name: Test Reservation API
 on:
   push:
     paths:
-      - 'reservationAPI/*'
+      - 'reservationAPI/**'
 
 jobs:
   build-and-test:
