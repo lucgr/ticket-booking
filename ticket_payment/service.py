@@ -2,6 +2,9 @@ import time
 import pika
 import random
 import json
+from multiprocessing import Process
+
+from databasePayment import addToDataBase
 
 # Specify the name of the IP address
 
@@ -44,38 +47,52 @@ def simulate_payment():
 
 
 def process_payment_request(ch, method, properties, body):
-    
+    # time.sleep(5) # Testing purposes
     message = json.loads(body.decode())
-    orderId = message.get('body', {}).get('orderId', 'Unknown Order')
-    
+
     total = 0
     for ticket in message.get("body", {}).get("tickets", []):
         total += ticket.get('price', 0)
+    
+    orderId = message.get('body', {}).get('orderId', 'Unknown Order')
 
-    print(f"Payment request is received from {orderId}, total: {total} euros, please enter payment details..", flush=True)
+    print(f"({orderId}) Payment request is received, total: {total} euros, please enter payment details..", flush=True)
     
     result, status_code = simulate_payment() # Simulation of payment, returns success, fail or timeout.
         
-    print(f"Payment was: {result} for request: {orderId}, Status code: {status_code}", flush=True)
-    
+    print(f"({orderId}) Payment status: '{result}', Status code: {status_code}", flush=True)
+    print(f"({orderId}) Storing to DB...", flush=True)
     response = {
+        "orderId": orderId,
         "code": status_code,
         "message": "Payment: " + result,
-        "orderId": orderId,
         "response": {
             "total": total,
             "status": result
         }
     } # Ideally this will be stored in the table
     
-    print(f"Sending response back: {orderId}", flush=True)
+    resultDB, status_code_db = addToDataBase(response)
+    if(status_code_db != 200):
+        response = {
+            "orderId": orderId,
+            "code": status_code_db,
+            "message": "Payment: " + result + "Database: " + resultDB ,
+            "response": {
+                "total": total,
+                "status": result
+        }
+    }
+
+    print(f"({orderId}) Database status: '{resultDB}', Return code: {status_code_db}", flush=True)
+    print(f"({orderId}) Sending response back...", flush=True)
     
     connection, channel = rabbitmq_connection()
     properties = pika.BasicProperties(message_id=orderId,correlation_id=orderId, delivery_mode=2,content_type="application/json", content_encoding="UTF-8")
     channel.basic_publish(exchange='', routing_key=OUTPUT_QUEUE_NAME, body=json.dumps(response), properties=properties)
     connection.close()
     
-    print(f"Send finish: {orderId}", flush=True)
+    print(f"({orderId}) Send finish!", flush=True)
 
     ch.basic_ack(delivery_tag=method.delivery_tag)
     
@@ -124,13 +141,18 @@ def send_payment_request(request_id: str = "2908beb8-1743-4c4e-80d8-4daf8e8a7b4c
     
     channel.basic_publish(exchange='', routing_key=INPUT_QUEUE_NAME, body=json.dumps(message))
     connection.close()
-    print(f"Payment request for order {message.get('body', {}).get('orderId', 'Unknown Order')} sent to queue", flush=True)
+    print(f"({message.get('body', {}).get('orderId', 'Unknown Order')})Payment request for order sent to queue...", flush=True)
 
+
+def createNewProcess(ch, method, properties, body):
+    p = Process(target=process_payment_request, args=(ch, method, properties, body))
+    p.start()
+    print("Extra consumer process spawned with PID:", p.pid, flush=True)
 
 def starts_server():
     print("Trying to set up connection\n", flush=True)
     connection, channel = rabbitmq_connection()
-    channel.basic_consume(queue=INPUT_QUEUE_NAME, on_message_callback=process_payment_request)
+    channel.basic_consume(queue=INPUT_QUEUE_NAME, on_message_callback=createNewProcess)
     print("Payment service is listening for messages...", flush=True)
     channel.start_consuming()
     
