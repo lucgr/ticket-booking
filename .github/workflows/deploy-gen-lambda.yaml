@@ -34,3 +34,34 @@ jobs:
     - name: Update Lambda function code
       run: |
         aws lambda update-function-code --function-name generateTicket --zip-file fileb://function.zip
+
+    - name: Test curl to Lambda endpoint
+      run: |
+        http_code=$(curl -s -o response.txt -w "%{http_code}" -X POST "${{ vars.LAMBDA_URL }}" \
+        -H "Content-Type: application/json" \
+        -H "x-api-key: ${{ secrets.API_KEY }}" \
+        -d '{
+              "customer_name": "Testy McTest",
+              "events": [
+                {
+                  "event_id": "Hans Dekker on Tour: Confusion Everywhere",
+                  "tickets": [
+                    {"ticketId": "TICKET001", "price": 50.0},
+                    {"ticketId": "TICKET002", "price": 75.0}
+                  ]
+                },
+                {
+                  "event_id": "Jeff Besos, the Musical",
+                  "tickets": [
+                    {"ticketId": "TICKET003", "price": 100.0}
+                  ]
+                }
+              ]
+            }')
+        echo "HTTP Status Code: ${http_code}"
+        echo "Response body:" 
+        cat response.txt
+        if [ "${http_code}" -ne 200 ]; then
+          echo "Test failed: Expected status code 200 but got ${http_code}"
+          exit 1
+        fi

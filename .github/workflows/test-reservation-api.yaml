@@ -1,0 +1,26 @@
+name: Test Reservation API
+
+on:
+  push:
+    paths:
+      - 'reservationAPI/*'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build and run Docker containers
+      run: docker compose -f ./reservationAPI/docker-compose.yaml up -d
+
+    - name: Install Newman
+      run: npm install -g newman
+
+    - name: Run Postman collection
+      run: newman run ./reservationAPI/postman/collection.json -e ./reservationAPI/postman/environment.json

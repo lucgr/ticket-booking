@@ -10,9 +10,10 @@ from reportlab.pdfgen import canvas
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
 logger.info("Initializing S3 client...")
 s3 = boto3.client('s3')
-BUCKET_NAME = os.environ.get('S3_TICKET_BUCKET') # Should resolve to "ticket-pdfs-devops"
+BUCKET_NAME = "ticket-pdfs-devops"
 
 def lambda_handler(event, context):
     logger.info("Parsing input data...")
@@ -23,14 +24,57 @@ def lambda_handler(event, context):
         else:
             data = body
         customer_name = data['customer_name']
-        events = data['events'] # Expected to be a list of dicts with keys: ticket_id, price etc.
-        # tickets = data['tickets']  # Expected to be a list of dicts with keys: ticket_id, event_id, price etc.
+        events = data['events'] # Expected to be an event_id and a list of tickets - dicts with keys: ticketId, price etc.
     except Exception as e:
         return {
             'statusCode': 400,
             'body': json.dumps({'error': 'Invalid input', 'details': str(e)})
         }
     
+    # Generate the ticket PDF and upload it to S3
+    try:
+        pdf_key = create_and_upload_pdf(customer_name, events, context)
+
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': 'Upload failed', 'details': str(e)})
+        }
+
+    return generate_presigned_url(pdf_key)
+
+
+# Generate a presigned URL to access the PDF from S3 based on the pdf key(only valid for 1 hour)
+def generate_presigned_url(pdf_key, session=None):
+    try:
+        # Create an S3 client
+        if session is None:
+            s3_client = boto3.client("s3")
+        else:
+            s3_client = session.client("s3")
+
+        # Generate the presigned URL
+        presigned_url = s3_client.generate_presigned_url(
+            "get_object",
+            Params={"Bucket": BUCKET_NAME, "Key": pdf_key},
+            ExpiresIn=3600,  # URL expires in 1 hour
+        )
+
+        logger.info("Ticket generation successful! Returning presigned URL...")
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"url": presigned_url}),
+        }
+    except Exception as e:
+        logger.error(f"Failed to generate presigned URL: {str(e)}")
+        return {
+            "statusCode": 500,
+            "body": json.dumps({"error": "Failed to generate URL", "details": str(e)}),
+        }
+
+
+# Creating the ticket PDF and uploading it to S3
+def create_and_upload_pdf(customer_name, events, context):
     # Create a temporary PDF file in /tmp (other directories arent writable through lambda)
     temp_pdf = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     pdf_path = temp_pdf.name
@@ -50,10 +94,12 @@ def lambda_handler(event, context):
     logger.info("Generating ticket PDFs...")
     for event in events:
         tickets = event.get('tickets')
-        c.drawString(50, y, f"Event: {event}")
+        event_id = event.get('event_id')
+        c.setFont("Helvetica-Bold", 13)
+        c.drawString(50, y, f"Event: {event_id}")
         y -= 40
         for ticket in tickets:
-            ticket_id = ticket.get('ticket_id')
+            ticket_id = ticket.get('ticketId')
             price = ticket.get('price')
 
             # Writing ticket details to the PDF
@@ -88,24 +134,7 @@ def lambda_handler(event, context):
         s3.upload_file(pdf_path, BUCKET_NAME, pdf_key, ExtraArgs={'ContentType': 'application/pdf'})
     except Exception as e:
         logger.error(f"Failed to upload PDF to S3: {e}")
-        return {
-            'statusCode': 500,
-            'body': json.dumps({'error': 'Upload failed', 'details': str(e)})
-        }
     finally:
         os.remove(pdf_path)
-
-    # Generate a presigned URL to access the PDF from S3 (only valid for 1 hour)
-    try:
-        presigned_url = s3.generate_presigned_url('get_object', Params={'Bucket': BUCKET_NAME, 'Key': pdf_key}, ExpiresIn=3600)
-    except Exception as e:
-        logger.error(f"Failed to generate presigned URL: {e}")
-        return {
-            'statusCode': 500,
-            'body': json.dumps({'error': 'Failed to generate URL', 'details': str(e)})
-        }
-    logger.info("Ticket generation successful! Returning presigned URL...")
-    return {
-        'statusCode': 200,
-        'body': json.dumps({'url': presigned_url})
-    }
+    
+    return pdf_key
