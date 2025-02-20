@@ -3,7 +3,7 @@ name: Build and Push ReservationAPI Docker Image to ECR
 on:
   push:
     paths:
-      - 'reservationAPI/*' 
+      - 'reservationAPI/**' 
 
 jobs:
   build-and-push-docker-image:
