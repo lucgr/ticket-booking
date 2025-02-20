@@ -2,11 +2,11 @@ import time
 import pika
 import random
 import json
-from multiprocessing import Pool
 from multiprocessing import Process
 
-# Specify the name of the IP address
+from databasePayment import addToDataBase
 
+# Specify the name of the IP address
 RABBITMQ_HOST = "rabbitmq" 
 #RABBITMQ_HOST = "localhost" 
 
@@ -51,30 +51,45 @@ def process_payment_request(ch, method, properties, body):
     for ticket in message.get("body", {}).get("tickets", []):
         total += ticket.get('price', 0)
     
-    print(f"Payment request is received from {message.get('body', {}).get('orderId', 'Unknown Order')}, total: {total} euros, please enter payment details..", flush=True)
+    orderId = message.get('body', {}).get('orderId', 'Unknown Order')
+    
+    print(f"({orderId}) Payment request is received, total: {total} euros, please enter payment details..", flush=True)
     
     result, status_code = simulate_payment() # Simulation of payment, returns success, fail or timeout.
         
-    print(f"Payment was: {result} for request: {message.get('body', {}).get('orderId', 'Unknown Order')}, Status code: {status_code}", flush=True)
-    
+    print(f"({orderId}) Payment status: '{result}', Status code: {status_code}", flush=True)
+    print(f"({orderId}) Storing to DB...", flush=True)
     response = {
+        "orderId": orderId,
         "code": status_code, 
         "message": "Payment: " + result,
-        "orderId": message.get('body', {}).get('orderId', 'Unknown Order'),
         "response": {
             "total": total,
             "status": result
         }
     } # Ideally this will be stored in the table
     
-    print(f"Sending response back: {message.get('body', {}).get('orderId', 'Unknown Order')}", flush=True)
+    resultDB, status_code_db = addToDataBase(response)
+    if(status_code_db != 200):
+        response = {
+            "orderId": orderId,
+            "code": status_code_db, 
+            "message": "Payment: " + result + "Database: " + resultDB ,
+            "response": {
+                "total": total,
+                "status": result
+        }
+    }
+    
+    print(f"({orderId}) Database status: '{resultDB}', Return code: {status_code_db}", flush=True)
+    print(f"({orderId}) Sending response back...", flush=True)
     
     connection, channel = rabbitmq_connection()
     channel.queue_declare(queue=OUTPUT_QUEUE_NAME)
     channel.basic_publish(exchange='', routing_key=OUTPUT_QUEUE_NAME, body=json.dumps(response))
     connection.close()
     
-    print(f"Send finish: {message.get('body', {}).get('orderId', 'Unknown Order')}", flush=True)
+    print(f"({orderId}) Send finish!", flush=True)
 
     ch.basic_ack(delivery_tag=method.delivery_tag)
     
@@ -123,7 +138,7 @@ def send_payment_request(request_id: str = "2908beb8-1743-4c4e-80d8-4daf8e8a7b4c
     
     channel.basic_publish(exchange='', routing_key=INPUT_QUEUE_NAME, body=json.dumps(message))
     connection.close()
-    print(f"Payment request for order {message.get('body', {}).get('orderId', 'Unknown Order')} sent to queue", flush=True)
+    print(f"({message.get('body', {}).get('orderId', 'Unknown Order')})Payment request for order sent to queue...", flush=True)
 
 
 def createNewProcess(ch, method, properties, body):
