@@ -8,7 +8,6 @@ import io.swagger.model.document.Order;
 import io.swagger.repository.mongodb.OrderCollection;
 import io.swagger.repository.mongodb.TicketCollection;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +16,6 @@ import java.util.List;
 
 @Repository
 public class ReservationRepositoryImpl implements ReservationRepository {
-
-    @Autowired
-    private MongoTemplate mongoTemplate;
 
     @Autowired
     private OrderCollection orderCollection;

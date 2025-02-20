@@ -14,10 +14,6 @@ services:
     restart: unless-stopped
     depends_on:
       - mongo
-    environment:
-      MONGO_URI: mongodb://mongo:27017
-      MONGO_DB_USERNAME: root
-      MONGO_DB_PASSWORD: root
     ports:
       - "8080:8080"
     networks:
@@ -25,14 +21,20 @@ services:
 
   mongo:
     container_name: mongo
+    image: mongo:8
+    command: [ "--replSet", "rs0", "--bind_ip_all", "--port", "27017" ]
+    ports:
+      - "27017:27017"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017'}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
     volumes:
       - "mongo_data:/data/db"
     networks:
       - group8_network
-    image: mongo
-    restart: unless-stopped
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root

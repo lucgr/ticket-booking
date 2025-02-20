@@ -13,11 +13,18 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Manual link because why tf not
+      run: echo '127.0.0.1 host.docker.internal' | sudo tee -a /etc/hosts
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
     - name: Build and run Docker containers
       run: docker compose -f ./reservationAPI/docker-compose.yaml up -d
+
+    - name: Wait for containers to be healthy
+      run: |
+        cat /etc/hosts
 
     - name: Install Newman
       run: npm install -g newman
