@@ -1,0 +1,39 @@
+{
+	"id": "460726aa-5925-4ca7-a52e-87c8d73e4bf9",
+	"name": "test",
+	"values": [
+		{
+			"key": "baseUrl",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "ticketId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "eventId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "orderId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "numberOfSeats",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2025-02-20T18:50:33.577Z",
+	"_postman_exported_using": "Postman/11.33.4"
+}
