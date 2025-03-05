@@ -3,7 +3,7 @@ name: Test Ticket-Generation Lambda Code
 on:
     push:
         paths:
-        - 'lambda/**'
+        - 'lambda/generate_ticket/**'
 
 jobs:
     test-ticket-generation:
@@ -20,7 +20,7 @@ jobs:
 
         - name: Install dependencies
           run: |
-            pip install -r lambda/requirements.txt
+            pip install -r lambda/generate_ticket/requirements.txt
 
         - name: Run Ruff
           uses: astral-sh/ruff-action@v3

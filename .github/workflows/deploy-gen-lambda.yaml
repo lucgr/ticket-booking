@@ -22,7 +22,7 @@ jobs:
 
     - name: Package Lambda code
       run: |
-        zip -j function.zip lambda/lambda_function.py
+        zip -j function.zip lambda/generate_ticket/lambda_function.py
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
