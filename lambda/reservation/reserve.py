@@ -1,6 +1,5 @@
 import simplejson as json
 import boto3
-from decimal import Decimal
 
 class TicketNotAvailableException(Exception):
     pass

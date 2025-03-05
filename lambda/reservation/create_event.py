@@ -24,7 +24,7 @@ def lambda_handler(event, context):
         
         # Create tickets for the event
         for seat_number in range(1, requestJSON['numberOfSeats'] + 1):
-            ticket_id = str(uuid.uuid4())
+            # ticket_id = str(uuid.uuid4())
             ticket_table.put_item(
                 Item={
                     'id': str(uuid.uuid4()),
