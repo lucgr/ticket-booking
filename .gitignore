@@ -1,4 +1,5 @@
 ticket_payment/__pycache__/
+ticket_payment/
 *#
 *.iml
 *.ipr
