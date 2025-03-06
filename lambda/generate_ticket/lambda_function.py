@@ -18,11 +18,14 @@ BUCKET_NAME = "ticket-pdfs-devops"
 def lambda_handler(event, context):
     logger.info("Parsing input data...")
     try:
-        body = event.get('body')
-        if isinstance(body, str):
+        body = event.get('body', event)
+        if isinstance(body, str): 
             data = json.loads(body)
-        else:
+        elif isinstance(body, dict): 
             data = body
+        else:
+            raise ValueError("Unexpected event format")
+
         customer_name = data['customer_name']
         events = data['events'] # Expected to be an event_id and a list of tickets - dicts with keys: ticketId, price etc.
     except Exception as e:
@@ -83,7 +86,7 @@ def create_and_upload_pdf(customer_name, events, context):
     # Initialize the PDF canvas
     c = canvas.Canvas(pdf_path, pagesize=letter)
     width, height = letter
-    y = height - 50
+    y = height - 50 
 
     # Add customer information
     c.setFont("Helvetica-Bold", 16)
@@ -99,7 +102,7 @@ def create_and_upload_pdf(customer_name, events, context):
         c.drawString(50, y, f"Event: {event_id}")
         y -= 40
         for ticket in tickets:
-            ticket_id = ticket.get('ticketId')
+            ticket_id = ticket.get('id')
             price = ticket.get('price')
 
             # Writing ticket details to the PDF
@@ -131,7 +134,10 @@ def create_and_upload_pdf(customer_name, events, context):
     try:
         # Upload the PDF to S3
         logger.info("Uploading PDF to S3...")
-        s3.upload_file(pdf_path, BUCKET_NAME, pdf_key, ExtraArgs={'ContentType': 'application/pdf'})
+        logger.info(f"Bucket: {BUCKET_NAME}, Key: {pdf_key}")
+        logger.info(f"PDF size: {os.path.getsize(pdf_path)} bytes")
+        upload = s3.upload_file(pdf_path, BUCKET_NAME, pdf_key)
+        logger.info(f"Upload successful! {upload}")
     except Exception as e:
         logger.error(f"Failed to upload PDF to S3: {e}")
     finally:
