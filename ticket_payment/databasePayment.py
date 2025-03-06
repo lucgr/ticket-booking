@@ -2,23 +2,23 @@ import os
 import pymongo
 import json
 
-def addToDataBase(data=None):
+def add_to_data_base(data=None):
     if not data:
         return 'Error Database', 400
     
     mongo_uri = os.getenv("MONGO_URI", "mongodb://mongo:27017/")
     myclient = pymongo.MongoClient(mongo_uri)
-    paymentDatabase = myclient["payDB"]
-    payment_invoices = paymentDatabase["students"]
+    payment_database = myclient["payDB"]
+    payment_invoices = payment_database["invoices"]
     
     exists = payment_invoices.find_one({"_id": data.get("orderId")})
     if exists:
         return 'Already exists', 409
     
-    dictData = data
-    dictData["_id"] = dictData.pop("orderId")
+    dict_data = data
+    dict_data["_id"] = dict_data.pop("orderId")
     
-    payment_invoices.insert_one(dictData)
+    payment_invoices.insert_one(dict_data)
     return 'Success', 200
 
 

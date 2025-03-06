@@ -27,8 +27,8 @@ services:
       - rabbitmq
       - mongodb
     environment:
-        - RABBITMQ_HOST=rabbitmq
-        - MONGO_URI=mongodb://mongodb:27017/
+        RABBITMQ_HOST: rabbitmq
+        MONGO_URI: mongodb://mongodb:27017/
     networks:
       - mynetwork
 

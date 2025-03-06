@@ -2,14 +2,18 @@ import time
 import pika
 import random
 import json
+import os
 from multiprocessing import Process
 
-from databasePayment import addToDataBase
+from databasePayment import add_to_data_base
 
 # Specify the name of the IP address
 
 RABBITMQ_HOST = "rabbitmq" 
 #RABBITMQ_HOST = "localhost" 
+
+mongo_username = os.getenv("RABBITMQ_DEFAULT_USER", "user")
+mongo_password = os.getenv("RABBITMQ_DEFAULT_PASS", "password")
 
 INPUT_QUEUE_NAME = "payment_queue"
 OUTPUT_QUEUE_NAME = "payment_response_queue"
@@ -20,7 +24,7 @@ def rabbitmq_connection(retry_delay=5, maxRetries=10):
     while retries < maxRetries:
         try:
             print(f"Trying to connect to rabbitMQ (attempt {retries + 1})...", flush=True)
-            credentials = pika.PlainCredentials("user", "password")
+            credentials = pika.PlainCredentials(mongo_username, mongo_password)
             connection = pika.BlockingConnection(pika.ConnectionParameters(RABBITMQ_HOST, '5672', '/', credentials))
             channel = connection.channel()
             channel.queue_declare(queue= INPUT_QUEUE_NAME, durable=True)
@@ -72,7 +76,7 @@ def process_payment_request(ch, method, properties, body):
         }
     } # Ideally this will be stored in the table
     
-    resultDB, status_code_db = addToDataBase(response)
+    resultDB, status_code_db = add_to_data_base(response)
     if(status_code_db != 200):
         response = {
             "orderId": orderId,
@@ -144,7 +148,7 @@ def send_payment_request(request_id: str = "2908beb8-1743-4c4e-80d8-4daf8e8a7b4c
     print(f"({message.get('body', {}).get('orderId', 'Unknown Order')})Payment request for order sent to queue...", flush=True)
 
 
-def createNewProcess(ch, method, properties, body):
+def create_new_process(ch, method, properties, body):
     p = Process(target=process_payment_request, args=(ch, method, properties, body))
     p.start()
     print("Extra consumer process spawned with PID:", p.pid, flush=True)
@@ -152,7 +156,7 @@ def createNewProcess(ch, method, properties, body):
 def starts_server():
     print("Trying to set up connection\n", flush=True)
     connection, channel = rabbitmq_connection()
-    channel.basic_consume(queue=INPUT_QUEUE_NAME, on_message_callback=createNewProcess)
+    channel.basic_consume(queue=INPUT_QUEUE_NAME, on_message_callback=create_new_process)
     print("Payment service is listening for messages...", flush=True)
     channel.start_consuming()
     
