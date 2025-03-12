@@ -1,7 +1,7 @@
 import pytest
 import json
 from unittest.mock import patch, MagicMock
-from generate_ticket.lambda_function import generate_presigned_url
+from lambda_function import generate_presigned_url
 
 # Test-data, not real name, key or url
 BUCKET_NAME = "test-bucket"
