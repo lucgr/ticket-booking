@@ -1,7 +1,7 @@
 import json
 import random
 import uuid
-from locust import HttpUser, task
+from locust import HttpUser, between, task
 import time
 
 import requests
@@ -10,6 +10,8 @@ API_HOST = "https://a8meg59qf3.execute-api.eu-central-1.amazonaws.com"
 
 class WorkflowUser(HttpUser):
     global API_HOST
+
+    wait_time = between(2, 10)
     
     @task
     def trigger_workflow(self):
