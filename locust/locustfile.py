@@ -87,7 +87,6 @@ class WorkflowUser(HttpUser):
         get_response = requests.get(
             f"{API_HOST}/events",
             headers={
-                "accept": "application/json",
                 "Content-Type": "application/json"
             },
             timeout=30
@@ -96,19 +95,8 @@ class WorkflowUser(HttpUser):
         
         events_data = get_response.json()
         
-        if not events_data:
-            raise ValueError("No events found")
-        
-        if isinstance(events_data, list):
-            event = random.choice(events_data)
-        elif isinstance(events_data, dict):
-            event_key = random.choice(list(events_data.keys()))
-            event = events_data[event_key]
-        else:
-            raise ValueError("Unexpected format for events_data")
-        
-        event_id = event.get('id')
-        ticket_ids = event.get("availableTicketIds")
+        event_id = events_data.get("events")[0].get("id")
+        ticket_ids = events_data.get("events")[0].get("availableTicketIds")
         
         if not ticket_ids:
             raise ValueError(f"No tickets found for event {event_id}")
