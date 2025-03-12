@@ -46,78 +46,89 @@ def simulate_payment():
     return result, 200
 
 def process_payment_request(message):
-    # time.sleep(5) # Testing purposes
-    #message = json.loads(body.decode())
-
-    total = 0
-    for ticket in message.get("body", {}).get("tickets", []):
-        total += ticket.get('price', 0)
     
-    orderId = message.get('body', {}).get('orderId', 'Unknown Order')
-
-    print(f"({orderId}) Payment request is received, total: {total} euros, please enter payment details..", flush=True)
+    try:
     
-    result, status_code = simulate_payment() # Simulation of payment, returns success, fail or timeout.
+        # time.sleep(5) # Testing purposes
+        #message = json.loads(body.decode())
+
+        total = 0
+        for ticket in message.get("body", {}).get("tickets", []):
+            total += ticket.get('price', 0)
         
-    print(f"({orderId}) Payment status: '{result}', Status code: {status_code}", flush=True)
-    print(f"({orderId}) Storing to DB...", flush=True)
-    response = {
-        "orderId": orderId,
-        "code": status_code,
-        "message": "Payment: " + result,
-        "response": {
-            "total": total,
-            "status": result
-        }
-    } # Ideally this will be stored in the table
-    status_code_db = 200
-    # resultDB, status_code_db = add_to_data_base(payment_table, response)
-    '''
-    if(status_code_db != 200):
+        orderId = message.get('body', {}).get('orderId', 'Unknown Order')
+
+        print(f"({orderId}) Payment request is received, total: {total} euros, please enter payment details..", flush=True)
+        
+        result, status_code = simulate_payment() # Simulation of payment, returns success, fail or timeout.
+            
+        print(f"({orderId}) Payment status: '{result}', Status code: {status_code}", flush=True)
+        print(f"({orderId}) Storing to DB...", flush=True)
         response = {
             "orderId": orderId,
-            "code": status_code_db,
-            "message": "Payment: " + result + "Database: " + resultDB ,
+            "code": status_code,
+            "message": "Payment: " + result,
             "response": {
                 "total": total,
                 "status": result
+            }
+        } # Ideally this will be stored in the table
+        
+        status_code_db = 200
+        resultDB, status_code_db = add_to_data_base(payment_table, response)
+        
+        if(status_code_db != 200):
+            response = {
+                "orderId": orderId,
+                "code": status_code_db,
+                "message": "Payment: " + result + "Database: " + resultDB ,
+                "response": {
+                    "total": total,
+                    "status": result
+            }
         }
-    }
-    '''
-    # print(f"({orderId}) Database status: '{resultDB}', Return code: {status_code_db}", flush=True)
-    print(f"({orderId}) Sending response back...", flush=True)
-    
-    connection, channel = rabbitmq_connection()
-    properties = pika.BasicProperties(message_id=orderId,correlation_id=orderId, delivery_mode=2,content_type="application/json", content_encoding="UTF-8")
-    channel.basic_publish(exchange='', routing_key="payment_response", body=json.dumps(response), properties=properties)
-    connection.close() 
-    
+        
+        print(f"({orderId}) Database status: '{resultDB}', Return code: {status_code_db}", flush=True)
+        print(f"({orderId}) Sending response back...", flush=True)
+        
+        connection, channel = rabbitmq_connection()
+        properties = pika.BasicProperties(message_id=orderId,correlation_id=orderId, delivery_mode=2,content_type="application/json", content_encoding="UTF-8")
+        channel.basic_publish(exchange='', routing_key="payment_response", body=json.dumps(response), properties=properties)
+        connection.close() 
+        
 
-    print(f"({orderId}) Send finish!", flush=True)
-
-    # ch.basic_ack(delivery_tag=method.delivery_tag)
-    
-    return response
+        print(f"({orderId}) Send finish!", flush=True)
+        
+        return response
+    except Exception as e:
+        print(f"Error processing payment request: {e}", flush=True)
+        raise
 
 
 
 def lambda_handler(event, context):
-    
-    response_body = {
-        'message': 'Hello from Lambda!',
-        'event': event
-    }
-    
-    event_data = event['rmqMessagesByQueue'].get('payment_request::/', [])[0].get('data', '')
+    try:
+        response_body = {
+            'message': 'Hello from Lambda!',
+            'event': event
+        }
+        
+        event_data = event['rmqMessagesByQueue'].get('payment_request::/', [])[0].get('data', '')
 
-    decoded_bytes = base64.b64decode(event_data)
-    decoded_event_data = json.loads(decoded_bytes.decode('utf-8'))
-    # print(os.listdir('/opt/payment_service/python/'))
-    # print("Contents of /opt/keys:", os.listdir('/opt/keys'))
-    
-    process_payment_request(decoded_event_data)
-    
-    return {
-        'statusCode': 200,
-        'body': json.dumps(response_body)
-    }
+        decoded_bytes = base64.b64decode(event_data)
+        decoded_event_data = json.loads(decoded_bytes.decode('utf-8'))
+        # print(os.listdir('/opt/payment_service/python/'))
+        # print("Contents of /opt/keys:", os.listdir('/opt/keys'))
+        
+        process_payment_request(decoded_event_data)
+        
+        return {
+            'statusCode': 200,
+            'body': json.dumps(response_body)
+        }
+    except Exception as e:
+        print(f"Error in lambda_handler: {e}", flush=True)
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'error': str(e)})
+        }
