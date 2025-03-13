@@ -5,8 +5,8 @@ on:
         branches:
             - ticket_payment
         paths:
-            - 'ticket_payment/lambda_function_payment/databasePayment_dynamo.py'
-            - 'ticket_payment/lambda_function_payment/lambda_function.py'
+            - 'lambda/lambda_function_payment/databasePayment_dynamo.py'
+            - 'lambda/lambda_function_payment/lambda_function.py'
     workflow_dispatch:
 
 jobs:
@@ -24,7 +24,7 @@ jobs:
 
         - name: Package Lambda code
           run: |
-            zip -j function.zip ticket_payment/lambda_function_payment/*
+            zip -j function.zip lambda/lambda_function_payment/*
 
         - name: Configure AWS credentials
           uses: aws-actions/configure-aws-credentials@v2
