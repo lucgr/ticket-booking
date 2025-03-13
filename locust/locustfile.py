@@ -46,17 +46,9 @@ class WorkflowUser(HttpUser):
 
         headers = {"Content-Type": "application/json"}
         payload = {
-            "mode": "raw",
-            "raw": json.dumps({
-                "userId": f"User-{uuid.uuid4()}", 
-                "eventId": event_id,
-                "ticketsIds": [ticket_id]
-            }),
-            "options": {
-                "raw": {
-                    "language": "json"
-                }
-            }
+            "userId": f"User-{uuid.uuid4()}", 
+            "eventId": event_id,
+            "ticketsIds": [ticket_id]
         }
         
         start_time = time.time()
