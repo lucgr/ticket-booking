@@ -8,9 +8,9 @@ on:
             - 'ticket_payment/'
 
 jobs:
-    deployLambda:
+    deploy-lambda:
         runs-on: ubuntu-latest
-
+        # comment
         steps:
         - name: Checkout code
           uses: actions/checkout@v3
