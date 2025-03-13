@@ -10,7 +10,7 @@ on:
 jobs:
     deploy-lambda:
         runs-on: ubuntu-latest
-        
+
         steps:
         - name: Checkout code
           uses: actions/checkout@v3
@@ -21,7 +21,8 @@ jobs:
             python-version: '3.12'
 
         - name: Package Lambda code
-          run: zip -j function.zip ticket_payment/lambda_function_payment/
+          run: |
+            zip -j function.zip ticket_payment/lambda_function_payment/
 
         - name: Configure AWS credentials
           uses: aws-actions/configure-aws-credentials@v2
