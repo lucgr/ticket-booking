@@ -8,7 +8,7 @@ on:
             - 'ticket_payment/'
 
 jobs:
-    deploy_lambda:
+    deployLambda:
         runs-on: ubuntu-latest
 
         steps:
