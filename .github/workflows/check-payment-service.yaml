@@ -23,7 +23,7 @@ jobs:
 
         - name: Package Lambda code
           run: |
-            zip -j function.zip ticket_payment/lambda_function_payment/
+            zip -j function.zip ticket_payment/lambda_function_payment/*
 
         - name: Configure AWS credentials
           uses: aws-actions/configure-aws-credentials@v2
