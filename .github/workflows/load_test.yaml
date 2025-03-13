@@ -24,8 +24,8 @@ jobs:
         --header 'accept: application/json' \
         --header 'Content-Type: application/json' \
         --data '{
-            "eventName": "Super bowl from LoadTest",
-            "numberOfSeats": 600,
+            "eventName": "Event from LoadTest",
+            "numberOfSeats": 1000,
             "seatPrice": 50
         }'
 
@@ -33,16 +33,16 @@ jobs:
       run: pip install locust
 
     - name: Locust Load Test - 10 users
-      run: locust -f locust/locustfile.py --headless -u 10 -r 5 -t 10s --host=https://p83fxu1m53.execute-api.eu-central-1.amazonaws.com
+      run: locust -f locust/locustfile.py --headless -u 10 -r 5 -t 20s --host=https://p83fxu1m53.execute-api.eu-central-1.amazonaws.com
 
     - name: Locust Load Test - 50 users
-      run: locust -f locust/locustfile.py --headless -u 50 -r 10 -t 10s --host=https://p83fxu1m53.execute-api.eu-central-1.amazonaws.com
+      run: locust -f locust/locustfile.py --headless -u 50 -r 10 -t 20s --host=https://p83fxu1m53.execute-api.eu-central-1.amazonaws.com
 
     - name: Locust Load Test - 75 users
-      run: locust -f locust/locustfile.py --headless -u 75 -r 10 -t 10s --host=https://p83fxu1m53.execute-api.eu-central-1.amazonaws.com
+      run: locust -f locust/locustfile.py --headless -u 75 -r 10 -t 20s --host=https://p83fxu1m53.execute-api.eu-central-1.amazonaws.com
 
     - name: Locust Load Test - 150 users
-      run: locust -f locust/locustfile.py --headless -u 150 -r 50 -t 10s --host=https://p83fxu1m53.execute-api.eu-central-1.amazonaws.com
+      run: locust -f locust/locustfile.py --headless -u 150 -r 50 -t 20s --host=https://p83fxu1m53.execute-api.eu-central-1.amazonaws.com
 
     - name: Locust Load Test - 250 users
-      run: locust -f locust/locustfile.py --headless -u 250 -r 50 -t 10s --host=https://p83fxu1m53.execute-api.eu-central-1.amazonaws.com
+      run: locust -f locust/locustfile.py --headless -u 250 -r 50 -t 20s --host=https://p83fxu1m53.execute-api.eu-central-1.amazonaws.com
