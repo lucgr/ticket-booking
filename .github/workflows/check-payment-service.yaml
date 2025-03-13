@@ -3,6 +3,7 @@ name: Check the Payment Services for Lambda
 on:
     push:
         branches:
+            - main
             - ticket_payment
         paths:
             - 'lambda/lambda_function_payment/databasePayment_dynamo.py'
