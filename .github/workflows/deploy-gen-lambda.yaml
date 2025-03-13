@@ -8,7 +8,7 @@ on:
       - 'lambda/lambda_function.py'
 
 jobs:
-  deploy-lambda:
+  deploy_lambda:
     runs-on: ubuntu-latest
 
     steps:
