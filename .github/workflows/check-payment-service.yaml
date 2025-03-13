@@ -40,5 +40,6 @@ jobs:
             aws lambda invoke \
             --function-name proccess-payment \
             --payload file://ticket_payment/trigger-payment-event.json \
-            output.json
+            output.json \
+            --cli-binary-format raw-in-base64-out
         
