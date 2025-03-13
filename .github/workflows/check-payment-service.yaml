@@ -5,7 +5,8 @@ on:
         branches:
             - ticket_payment
         paths:
-            - 'ticket_payment/'
+            - 'ticket_payment/lambda_function_payment/databasePayment_dynamo.py'
+            - 'ticket_payment/lambda_function_payment/lambda_function.py'
 
 jobs:
     deploy-lambda:

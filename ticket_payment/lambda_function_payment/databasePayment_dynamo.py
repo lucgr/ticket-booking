@@ -18,6 +18,7 @@ def add_to_data_base(payment_table, data=None):
     if "Item" in existing_item:
         return 'Already exists', 409
     
+    
     print("Step 4\n")
     data["id"] = order_id
     response = payment_table.put_item(Item=data)
@@ -26,4 +27,4 @@ def add_to_data_base(payment_table, data=None):
     if response["ResponseMetadata"]["HTTPStatusCode"] == 200:
         return 'Success', 200
     else:
-        return 'Error Storing Data', 500
+        return '.Error Storing Data', 500
