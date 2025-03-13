@@ -112,7 +112,7 @@ def lambda_handler(event, context):
             'message': 'Hello from Lambda!',
             'event': event
         }
-        
+        # h
         event_data = event['rmqMessagesByQueue'].get('payment_request::/', [])[0].get('data', '')
 
         decoded_bytes = base64.b64decode(event_data)
