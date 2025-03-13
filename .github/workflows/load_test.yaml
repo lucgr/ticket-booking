@@ -18,16 +18,37 @@ jobs:
       with:
         python-version: '3.12'
 
-    - name: Create tickets
+    - name: Create tickets small event
       run: |
         curl --location --request POST 'https://a8meg59qf3.execute-api.eu-central-1.amazonaws.com/events' \
         --header 'accept: application/json' \
         --header 'Content-Type: application/json' \
         --data '{
-            "eventName": "Event from LoadTest",
+            "eventName": "Small Event from LoadTest",
+            "numberOfSeats": 100,
+            "seatPrice": 50
+        }'
+    - name: Create tickets medium event
+      run: |
+        curl --location --request POST 'https://a8meg59qf3.execute-api.eu-central-1.amazonaws.com/events' \
+        --header 'accept: application/json' \
+        --header 'Content-Type: application/json' \
+        --data '{
+            "eventName": "Medium event from LoadTest",
+            "numberOfSeats": 250,
+            "seatPrice": 50
+        }'
+    - name: Create tickets large event
+      run: |
+        curl --location --request POST 'https://a8meg59qf3.execute-api.eu-central-1.amazonaws.com/events' \
+        --header 'accept: application/json' \
+        --header 'Content-Type: application/json' \
+        --data '{
+            "eventName": "Large event from LoadTest",
             "numberOfSeats": 1000,
             "seatPrice": 50
         }'
+
 
     - name: Install Locust
       run: pip install locust
@@ -46,3 +67,6 @@ jobs:
 
     - name: Locust Load Test - 250 users
       run: locust -f locust/locustfile.py --headless -u 250 -r 50 -t 20s --host=https://p83fxu1m53.execute-api.eu-central-1.amazonaws.com
+      
+    - name: Locust Load Test - 1000 users
+      run: locust -f locust/locustfile.py --headless -u 1000 -r 200 -t 10s --host=https://p83fxu1m53.execute-api.eu-central-1.amazonaws.com
