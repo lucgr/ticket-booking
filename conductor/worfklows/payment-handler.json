@@ -1,22 +1,21 @@
 {
- "name": "PaymentComplete",
- "description": "",
- "event": "amqp_queue:payment_response_queue",
- "evaluatorType": "javascript",
- "condition": "true",
+  "name": "PaymentComplete",
+  "event": "amqp_queue:payment_response",
+  "condition": "true",
   "actions": [
-        {
-        "action": "complete_task",
-        "complete_task": {
-          "workflowId": "${orderId}",
-          "taskRefName": "payment_receive",
-          "output": {
-            "response": "${orderId}",
-            "code" : 200
-          }
-        },
-        "expandInlineJSON": true
+    {
+      "action": "complete_task",
+      "complete_task": {
+        "workflowId": "${orderId}",
+        "taskRefName": "payment_receive",
+        "output": {
+          "response": "${orderId}",
+          "code": 200
+        }
+      },
+      "expandInlineJSON": true
     }
   ],
-"active": true
+  "active": true,
+  "evaluatorType": "javascript"
 }
