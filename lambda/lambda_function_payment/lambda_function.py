@@ -55,6 +55,8 @@ def process_payment_request(message):
         total = 0
         for ticket in message.get("body", {}).get("tickets", []):
             total += ticket.get('price', 0)
+            
+        total = round(float(total), 2)
         
         orderId = message.get('body', {}).get('orderId', 'Unknown Order')
 
@@ -69,12 +71,13 @@ def process_payment_request(message):
             "code": status_code,
             "message": "Payment: " + result,
             "response": {
-                "total": total,
+                "total": float(total),
                 "status": result
             }
-        } # Ideally this will be stored in the table
+        } # This will be stored in the table
         
-        status_code_db = 200
+        status_code_db = 404
+        resultDB = "Database not Updated"
         resultDB, status_code_db = add_to_data_base(payment_table, response)
         
         if(status_code_db != 200):
@@ -83,7 +86,7 @@ def process_payment_request(message):
                 "code": status_code_db,
                 "message": "Payment: " + result + "Database: " + resultDB ,
                 "response": {
-                    "total": total,
+                    "total": float(total),
                     "status": result
             }
         }
@@ -104,7 +107,14 @@ def process_payment_request(message):
         print(f"Error processing payment request: {e}", flush=True)
         raise
 
-
+def decode_event_data(event_data):
+    if isinstance(event_data, dict):
+        return event_data
+    try:
+        return json.loads(event_data)
+    except json.JSONDecodeError:
+        decoded_bytes = base64.b64decode(event_data)
+        return json.loads(decoded_bytes.decode('utf-8'))
 
 def lambda_handler(event, context):
     try:
@@ -115,11 +125,12 @@ def lambda_handler(event, context):
 
         event_data = event['rmqMessagesByQueue'].get('payment_request::/', [])[0].get('data', '')
 
-        decoded_bytes = base64.b64decode(event_data)
-        decoded_event_data = json.loads(decoded_bytes.decode('utf-8'))
-        # print(os.listdir('/opt/payment_service/python/'))
-        # print("Contents of /opt/keys:", os.listdir('/opt/keys'))
-        
+        decoded_event_data = decode_event_data(event_data)
+
+        # print("Decoded event data:", json.dumps(decoded_event_data, indent=2), flush=True) # Viewing JSONs
+
+        print("HANDLING ORDER: " + str(decoded_event_data["body"]["orderId"]) + "\n")
+
         process_payment_request(decoded_event_data)
         
         return {
