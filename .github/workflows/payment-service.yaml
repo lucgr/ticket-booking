@@ -43,14 +43,14 @@ jobs:
         - name: Test Trigger
           run: |
             aws lambda invoke \
-            --function-name proccess-payment \
-            --payload file://lambda/payment_triggers/test-trigger-payment-event.json \
-            --cli-binary-format raw-in-base64-out \
-            output.json
+              --function-name proccess-payment \
+              --payload file://lambda/payment_triggers/test-trigger-payment-event.json \
+              --cli-binary-format raw-in-base64-out \
+              output_payload.json > metadata.json
         
         - name: Verify Trigger Status Code
           run: |
-            STATUS_CODE=$(jq -r '.StatusCode' output.json)
+            STATUS_CODE=$(jq -r '.StatusCode' metadata.json)
             if [ "$STATUS_CODE" != "200" ]; then
               echo "Payment failed with status code $STATUS_CODE, should return 200"
               exit 1
@@ -63,12 +63,12 @@ jobs:
             aws lambda invoke \
             --function-name proccess-payment \
             --payload file://lambda/payment_triggers/test-trigger-payment-event-decoded.json \
-            --cli-binary-format raw-in-base64-out \
-            output2.json
+              --cli-binary-format raw-in-base64-out \
+              output_payload.json > metadata2.json
         
         - name: Verify Trigger Decoded Status Code
           run: |
-            STATUS_CODE=$(jq -r '.StatusCode' output2.json)
+            STATUS_CODE=$(jq -r '.StatusCode' metadata2.json)
             if [ "$STATUS_CODE" != "200" ]; then
               echo "Payment failed with status code $STATUS_CODE, should return 200"
               exit 1
