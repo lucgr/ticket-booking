@@ -9,6 +9,7 @@ on:
             - 'lambda/lambda_function_payment/databasePayment_dynamo.py'
             - 'lambda/lambda_function_payment/lambda_function.py'
             - 'lambda/payment_triggers/*'
+            - '.github/workflows/payment-service.yaml'
     workflow_dispatch:
 
 jobs:
