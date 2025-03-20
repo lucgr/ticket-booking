@@ -44,8 +44,8 @@ jobs:
             aws lambda invoke \
             --function-name proccess-payment \
             --payload file://lambda/payment_triggers/test-trigger-payment-event.json \
-            output.json \
-            --cli-binary-format raw-in-base64-out
+            --cli-binary-format raw-in-base64-out \
+            output.json
         
         - name: Verify Trigger Status Code
           run: |
@@ -62,8 +62,8 @@ jobs:
             aws lambda invoke \
             --function-name proccess-payment \
             --payload file://lambda/payment_triggers/test-trigger-payment-event-decoded.json \
-            output2.json \
-            --cli-binary-format raw-in-base64-out
+            --cli-binary-format raw-in-base64-out \
+            output2.json
         
         - name: Verify Trigger Decoded Status Code
           run: |
