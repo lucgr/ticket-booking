@@ -1,16 +1,16 @@
 {
   "createTime": 0,
-  "updateTime": 1739880212978,
+  "updateTime": 1741884026792,
   "name": "TicketBooking",
   "description": "",
-  "version": 4,
+  "version": 11,
   "tasks": [
     {
       "name": "Seat Reservation",
       "taskReferenceName": "seat_reservation",
       "inputParameters": {
         "http_request": {
-          "uri": "http://reservation-service:8080/reservations",
+          "uri": "https://9453jizjvg.execute-api.eu-central-1.amazonaws.com/v1/reservations",
           "method": "POST",
           "body": {
             "orderId": "${workflow.workflowId}",
@@ -60,7 +60,7 @@
             "forkTasks": [],
             "startDelay": 0,
             "joinOn": [],
-            "sink": "amqp_queue:payment_queue",
+            "sink": "amqp_queue:payment_request",
             "optional": false,
             "defaultExclusiveJoinTask": [],
             "asyncComplete": false,
@@ -102,11 +102,8 @@
                   "taskReferenceName": "generate_ticket",
                   "inputParameters": {
                     "http_request": {
-                      "uri": "https://wz4spl916g.execute-api.eu-central-1.amazonaws.com/default/generateTicket",
+                      "uri": "https://2ca9czjnkb.execute-api.eu-central-1.amazonaws.com/v1/generateTicket",
                       "method": "POST",
-                      "headers": {
-                        "x-api-key": "${workflow.input.apiKey}"
-                      },
                       "body": {
                         "customer_name": "${workflow.input.userId}",
                         "events": [
@@ -139,7 +136,7 @@
                 "taskReferenceName": "seat_reservation_undo",
                 "inputParameters": {
                   "http_request": {
-                    "uri": "http://reservation-service:8080/reservations/${workflow.workflowId}",
+                    "uri": "https://9453jizjvg.execute-api.eu-central-1.amazonaws.com/v1/reservations/${workflow.workflowId}",
                     "method": "PUT"
                   }
                 },
@@ -171,10 +168,10 @@
             "name": "Payment Message",
             "taskReferenceName": "payment_message",
             "inputParameters": {
-              "code": "${payment_receive.output.code}",
-              "url" : "${generate_ticket.output.url}",
+              "code": "${payment_receive.output.response.body.code}",
+              "url": "${generate_ticket.output.response.body.url}",
               "evaluatorType": "javascript",
-              "expression": "(function () {if($.code === 200) return $.url; else if($.code === 500) return 'Order Failure'; else return 'Payment Timeout'})()"
+              "expression": "(function () {if($.code === 200 || $.code === null) return $.url; else if($.code === 500) return 'Order Failure'; else return 'Payment Timeout'})()"
             },
             "type": "INLINE",
             "decisionCases": {},
@@ -228,8 +225,7 @@
   "inputParameters": [
     "userId",
     "eventId",
-    "ticketsIds",
-    "apiKey"
+    "ticketsIds"
   ],
   "outputParameters": {},
   "schemaVersion": 2,
