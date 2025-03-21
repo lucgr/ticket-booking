@@ -94,6 +94,8 @@ def process_payment_request(message):
         print(f"({orderId}) Database status: '{resultDB}', Return code: {status_code_db}", flush=True)
         print(f"({orderId}) Sending response back...", flush=True)
         
+        response["response"]["total"] = float(response["response"]["total"])
+        
         connection, channel = rabbitmq_connection()
         properties = pika.BasicProperties(message_id=orderId,correlation_id=orderId, delivery_mode=2,content_type="application/json", content_encoding="UTF-8")
         channel.basic_publish(exchange='', routing_key="payment_response", body=json.dumps(response), properties=properties)
