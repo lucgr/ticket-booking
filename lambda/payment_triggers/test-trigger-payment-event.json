@@ -1,0 +1,29 @@
+{
+    "eventSourceArn": "arn:aws:mq:eu-central-1:515966540415:broker:ConductorMQ:b-ca3ca3c4-bacd-4115-a69f-9017031e916d",
+    "rmqMessagesByQueue": {
+      "payment_request::/": [
+        {
+          "basicProperties": {
+            "contentType": "application/json",
+            "contentEncoding": "UTF-8",
+            "headers": null,
+            "deliveryMode": 2,
+            "priority": null,
+            "correlationId": "8047b212-afe6-43b4-adb1-3e14df6a251f",
+            "replyTo": null,
+            "expiration": null,
+            "messageId": "8047b212-afe6-43b4-adb1-3e14df6a251f",
+            "timestamp": null,
+            "type": null,
+            "userId": null,
+            "appId": null,
+            "clusterId": null,
+            "bodySize": 356
+          },
+          "redelivered": false,
+          "data": "eyJldmVudF9wcm9kdWNlZCI6ImFtcXBfcXVldWU6cGF5bWVudF9yZXF1ZXN0IiwiYXN5bmNDb21wbGV0ZSI6ZmFsc2UsInNpbmsiOiJhbXFwX3F1ZXVlOnBheW1lbnRfcmVxdWVzdCIsIndvcmtmbG93VHlwZSI6IlRpY2tldEJvb2tpbmdRVUVVRSIsImNvcnJlbGF0aW9uSWQiOm51bGwsInRhc2tUb0RvbWFpbiI6e30sIndvcmtmbG93VmVyc2lvbiI6MiwiYm9keSI6eyJldmVudElkIjoiIiwidGlja2V0cyI6IiIsIm9yZGVySWQiOiI4NTQ5ODZkMy1iMWU1LTQ3ZjAtYTU5NS05MzcyNWU2OTk3MzQiLCJ1c2VySWQiOiIifSwid29ya2Zsb3dJbnN0YW5jZUlkIjoiODU0OTg2ZDMtYjFlNS00N2YwLWE1OTUtOTM3MjVlNjk5NzM0In0="
+        }
+      ]
+    },
+    "eventSource": "aws:rmq"
+  }

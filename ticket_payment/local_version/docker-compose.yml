@@ -7,6 +7,17 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    networks:
+      - mynetwork
+
+  mongodb:
+    image: "mongo:latest"
+    container_name: "mongodb"
+    ports:
+      - "27017:27017"
     networks:
       - mynetwork
 
@@ -14,8 +25,10 @@ services:
     build: .
     depends_on: 
       - rabbitmq
+      - mongodb
     environment:
-        - RABBITMQ_HOST=rabbitmq
+        RABBITMQ_HOST: rabbitmq
+        MONGO_URI: mongodb://mongodb:27017/
     networks:
       - mynetwork
 

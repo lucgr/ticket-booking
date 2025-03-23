@@ -1,0 +1,63 @@
+{
+  "eventSourceArn": "arn:aws:mq:eu-central-1:515966540415:broker:ConductorMQ:b-ca3ca3c4-bacd-4115-a69f-9017031e916d",
+  "rmqMessagesByQueue": {
+    "payment_request::/": [
+      {
+        "basicProperties": {
+          "contentType": "application/json",
+          "contentEncoding": "UTF-8",
+          "headers": null,
+          "deliveryMode": 2,
+          "priority": null,
+          "correlationId": "8047b212-afe6-43b4-adb1-3e14df6a251f",
+          "replyTo": null,
+          "expiration": null,
+          "messageId": "8047b212-afe6-43b4-adb1-3e14df6a251f",
+          "timestamp": null,
+          "type": null,
+          "userId": null,
+          "appId": null,
+          "clusterId": null,
+          "bodySize": 356
+        },
+        "redelivered": false,
+        "data": {
+          "event_produced": "amqp_queue:conductor",
+          "asyncComplete": false,
+          "sink": "amqp_queue:conductor",
+          "workflowType": "TicketBooking",
+          "correlationId": null,
+          "taskToDomain": {},
+          "workflowVersion": 24,
+          "body": {
+            "eventId": "11dfd9b3-a0bf-476d-9438-16c7683e524d",
+            "tickets": [
+              {
+                "ticketId": "1",
+                "eventId": "11dfd9b3-a0bf-476d-9438-16c7683e524d",
+                "availability": "TICKET_AVAILABILITY_RESERVED",
+                "price": 100.15
+              },
+              {
+                "ticketId": "2",
+                "eventId": "11dfd9b3-a0bf-476d-9438-16c7683e524d",
+                "availability": "TICKET_AVAILABILITY_RESERVED",
+                "price": 100.15
+              },
+              {
+                "ticketId": "3",
+                "eventId": "11dfd9b3-a0bf-476d-9438-16c7683e524d",
+                "availability": "TICKET_AVAILABILITY_RESERVED",
+                "price": 100.15
+              }
+            ],
+            "orderId": "2908beb8-1743-4c4e-80d8-4daf8e8a7b4e",
+            "userId": "test"
+          },
+          "workflowInstanceId": "2908beb8-1743-4c4e-80d8-4daf8e8a7b4c"
+        }
+      }
+    ]
+  },
+  "eventSource": "aws:rmq"
+}
