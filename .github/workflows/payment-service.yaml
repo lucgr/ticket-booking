@@ -4,11 +4,10 @@ on:
     push:
         branches:
             - main
-            - ticket_payment
         paths:
-            - 'lambda/lambda_function_payment/databasePayment_dynamo.py'
-            - 'lambda/lambda_function_payment/lambda_function.py'
-            - 'lambda/payment_triggers/*'
+            - 'lambda/payment/databasePayment_dynamo.py'
+            - 'lambda/payment/lambda_function.py'
+            - 'lambda/payment/testing/*'
             - '.github/workflows/payment-service.yaml'
     workflow_dispatch:
 
@@ -27,7 +26,7 @@ jobs:
 
         - name: Package Lambda code
           run: |
-            zip -j function.zip lambda/lambda_function_payment/*
+            zip -j function.zip lambda/payment/lambda_function.py lambda/payment/databasePayment_dynamo.py 
 
         - name: Configure AWS credentials
           uses: aws-actions/configure-aws-credentials@v2
@@ -44,7 +43,7 @@ jobs:
           run: |
             aws lambda invoke \
               --function-name proccess-payment \
-              --payload file://lambda/payment_triggers/test-trigger-payment-event.json \
+              --payload file://lambda/payment/testing/test-trigger-payment-event.json \
               --cli-binary-format raw-in-base64-out \
               output_payload.json > metadata.json
         
@@ -62,7 +61,7 @@ jobs:
           run: |
             aws lambda invoke \
             --function-name proccess-payment \
-            --payload file://lambda/payment_triggers/test-trigger-payment-event-decoded.json \
+            --payload file://lambda/payment/testing/test-trigger-payment-event-decoded.json \
               --cli-binary-format raw-in-base64-out \
               output_payload.json > metadata2.json
         

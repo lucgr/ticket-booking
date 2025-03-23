@@ -1,9 +1,8 @@
 {
   "createTime": 0,
-  "updateTime": 1741884026792,
   "name": "TicketBooking",
   "description": "",
-  "version": 11,
+  "version": 1,
   "tasks": [
     {
       "name": "Seat Reservation",

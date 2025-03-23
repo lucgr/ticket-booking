@@ -1,9 +1,15 @@
 name: Load Test w/Locust
 
+#on:
+#    workflow_dispatch:
+#    schedule:
+#        - cron: '0 0 * * *'
+
 on:
     workflow_dispatch:
-    schedule:
-        - cron: '0 0 * * *'
+    push:
+        branches:
+            - main
 
 jobs:
   load-test:
