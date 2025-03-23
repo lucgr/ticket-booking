@@ -4,7 +4,6 @@ on:
     push:
         branches:
             - main
-            - ticket_payment
         paths:
             - 'lambda/payment/databasePayment_dynamo.py'
             - 'lambda/payment/lambda_function.py'
