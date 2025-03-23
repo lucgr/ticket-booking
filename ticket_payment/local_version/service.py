@@ -32,10 +32,10 @@ def rabbitmq_connection(retry_delay=5, maxRetries=10):
             print("Connected to rabbitmq", flush=True)
             return connection, channel
         except pika.exceptions.AMQPConnectionError:
-            print(f"Connection failed...", flush=True)
+            print("Connection failed...", flush=True)
             retries += 1
             time.sleep(retry_delay)
-    raise Exception(f"Could not connect to rabbitMQ attempts")
+    raise Exception("Could not connect to rabbitMQ attempts")
 
 
 def simulate_payment():
