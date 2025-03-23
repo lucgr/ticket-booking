@@ -51,3 +51,4 @@ test-results
 .venv
 lambda/__pycache__/
 ticket_payment/__pycache__/
+ticket_payment/payment_service_dependencies
