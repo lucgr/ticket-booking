@@ -12,3 +12,8 @@ TODO...
 View queue messages:
 docker exec -it rabbitmq bash
 rabbitmqctl list_queues
+
+## Information about ticket payment
+
+Final version used in AWS is located in `lambda/lambda_function_payment` (Uses RabbitMQ and DynamoDB)
+Initial local version used for debbugging, located in: `/payment_service` (Uses RabbitMQ and MongoDB)
