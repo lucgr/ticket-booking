@@ -1,4 +1,5 @@
 # Introduction
+*Note: AWS infrastructure has been turned off for this application, so the below endpoints no longer work*
 
 Migration of a ticket-booking application to AWS inspired by https://github.com/berndruecker/ticket-booking-camunda-8. <br> <br>
 [![Load Test w/Locust](https://github.com/lucgr/ticket-booking/actions/workflows/load_test.yaml/badge.svg)](https://github.com/lucgr/ticket-booking/actions/workflows/load_test.yaml)
